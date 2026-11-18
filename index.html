@@ -415,53 +415,124 @@
                 </div>
             </div>
         </main>
-        <!-- PESTAÑA 4: MI PERFIL (CON HISTORIAL INTEGRADO) -->
+<!-- PESTAÑA 4: MI PERFIL (ESTILO VIP BOARDING PASS / CABINA EJECUTIVA) -->
         <main id="view-perfil" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
-            <div class="aero-glass rounded-2xl p-4 space-y-4">
-                <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            
+            <!-- TARJETA DE MEMBRESÍA VIP ESTILO AVIACIÓN -->
+            <div class="relative overflow-hidden rounded-3xl border border-[#E5B84B]/45 bg-gradient-to-br from-[#121f3a] via-[#091122] to-[#04070f] p-5 shadow-[0_14px_35px_rgba(0,0,0,0.85)]">
+                <div class="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-[#E5B84B]/10 blur-2xl"></div>
+                
+                <div class="flex items-start justify-between">
                     <div>
-                        <p class="text-xs text-slate-400">Cuenta de Inversor</p>
-                        <h4 id="profile-phone" class="font-bold text-white font-mono">+54...</h4>
+                        <span class="inline-flex items-center space-x-1.5 rounded-full border border-[#E5B84B]/40 bg-[#E5B84B]/10 px-2.5 py-0.5 text-[10px] font-extrabold tracking-[0.2em] text-[#F3D078] uppercase">
+                            <span>✦</span>
+                            <span>AERION EXECUTIVE PASS</span>
+                        </span>
+                        <h4 id="profile-phone" class="mt-2.5 text-lg font-extrabold tracking-wider text-white font-mono">+54...</h4>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Comandante / Inversor Verificado</p>
                     </div>
-                    <span class="bg-emerald-500/20 text-emerald-300 text-xs font-semibold px-2.5 py-1 rounded-full border border-emerald-400/30">Verificado</span>
+                    <div class="text-right">
+                        <span class="inline-block rounded-xl border border-emerald-400/35 bg-emerald-500/15 px-2.5 py-1 text-[10px] font-bold text-emerald-300 uppercase tracking-wider">
+                            ● Activo
+                        </span>
+                        <p class="mt-2 text-[10px] text-slate-400 uppercase tracking-widest">ID Socio</p>
+                        <p id="profile-member-code" class="text-xs font-mono font-bold text-[#F3D078]">A------</p>
+                    </div>
                 </div>
 
-                <!-- Aviso de Bono por Completar Perfil -->
-                <div id="profile-bonus-card" class="bg-[#E5B84B]/10 border border-[#E5B84B]/30 rounded-xl p-3 text-xs text-[#F3D078]">
-                    🎁 <strong>Bono Único de $3.500 ARS:</strong> Completá tus tres datos bancarios por primera vez para recibir $3.500 ARS en tu saldo.
-                </div>
+                <!-- Línea punteada estilo Ticket de Embarque -->
+                <div class="my-4 border-t border-dashed border-[#E5B84B]/30"></div>
 
-                <div class="space-y-3">
-                    <h4 class="font-bold text-xs text-slate-200">Datos Bancarios para Cobros / Retiros</h4>
+                <div class="flex items-center justify-between text-[11px]">
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Titular de la Cuenta Bancaria <span class="text-[#E5B84B]">*Obligatorio</span></label>
-                        <input type="text" id="user-holder" placeholder="Nombre completo del titular" class="w-full aero-input rounded-xl px-3 py-2.5 text-xs">
+                        <span class="text-slate-400 block">Entidad de Cobro</span>
+                        <span id="card-bank-preview" class="font-bold text-white">Sin asignar</span>
                     </div>
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">CBU / CVU <span class="text-[#E5B84B]">*Obligatorio</span></label>
-                        <input type="text" id="user-cbu" placeholder="22 dígitos de tu CBU o CVU" class="w-full aero-input rounded-xl px-3 py-2.5 text-xs font-mono">
+                    <div class="text-right">
+                        <span class="text-slate-400 block">Alias Destino</span>
+                        <span id="card-alias-preview" class="font-mono font-bold text-[#F3D078]">---</span>
                     </div>
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Alias Bancario <span class="text-[#E5B84B]">*Obligatorio</span></label>
-                        <input type="text" id="user-alias" placeholder="Ej: mi.alias.mp" class="w-full aero-input rounded-xl px-3 py-2.5 text-xs">
-                    </div>
-                    <button onclick="guardarDatosBancarios()" class="w-full gold-gradient text-slate-950 font-bold py-2.5 rounded-xl text-xs transition shadow">Guardar Datos de Cobro</button>
                 </div>
             </div>
 
-            <!-- HISTORIAL UNIFICADO DE MOVIMIENTOS -->
-            <div class="aero-glass rounded-2xl p-4 space-y-3">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-sm text-[#F3D078]">📜 Historial de Movimientos</h3>
-                    <span class="text-[10px] text-slate-400">Depósitos, Retiros y Bonos</span>
+            <!-- AVISO BONO DE BIENVENIDA -->
+            <div id="profile-bonus-card" class="rounded-2xl border border-emerald-400/35 bg-gradient-to-r from-emerald-500/15 to-[#0a1326] p-3.5 flex items-center space-x-3">
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-400/20 text-base">🎁</div>
+                <p class="text-xs text-slate-200 leading-relaxed">
+                    <strong class="text-emerald-300">Bono de $3.500 ARS:</strong> Vinculá tu banco y datos de cobro por primera vez para acreditar el bono automáticamente.
+                </p>
+            </div>
+
+            <!-- FORMULARIO DE CUENTA BANCARIA (DISEÑO FLIGHT DECK) -->
+            <div class="aero-glass rounded-3xl p-5 space-y-4 border border-[#E5B84B]/25">
+                <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm">🏦</span>
+                        <h4 class="font-extrabold text-xs tracking-[0.16em] text-[#F3D078] uppercase">Destino de Transferencias</h4>
+                    </div>
+                    <span class="text-[10px] text-slate-400">Retiros 24/7</span>
+                </div>
+
+                <div class="space-y-3.5">
+                    <!-- Selector de Banco o Billetera -->
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1.5">Banco o Billetera Virtual <span class="text-[#E5B84B]">*</span></label>
+                        <select id="user-bank" class="w-full aero-input rounded-xl px-3.5 py-2.5 text-xs font-semibold text-white bg-[#060b16]">
+                            <option value="">Seleccioná tu banco o billetera...</option>
+                            <option value="Mercado Pago">Mercado Pago</option>
+                            <option value="Banco Nación">Banco de la Nación Argentina</option>
+                            <option value="Banco Macro">Banco Macro</option>
+                            <option value="Banco Galicia">Banco Galicia</option>
+                            <option value="Banco Santander">Banco Santander</option>
+                            <option value="BBVA Argentina">BBVA Argentina</option>
+                            <option value="Banco Provincia">Banco Provincia</option>
+                            <option value="Brubank">Brubank</option>
+                            <option value="Ualá">Ualá</option>
+                            <option value="Naranja X">Naranja X</option>
+                            <option value="Personal Pay">Personal Pay</option>
+                            <option value="ICBC">ICBC</option>
+                            <option value="Banco Credicoop">Banco Credicoop</option>
+                            <option value="Otro Banco / Billetera">Otro Banco / Billetera</option>
+                        </select>
+                    </div>
+
+                    <!-- Titular -->
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1.5">Titular de la Cuenta <span class="text-[#E5B84B]">*</span></label>
+                        <input type="text" id="user-holder" placeholder="Nombre y apellido tal como figura en el banco" class="w-full aero-input rounded-xl px-3.5 py-2.5 text-xs">
+                    </div>
+
+                    <!-- CBU / CVU -->
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1.5">CBU o CVU (22 dígitos) <span class="text-[#E5B84B]">*</span></label>
+                        <input type="text" id="user-cbu" maxlength="22" placeholder="0000000000000000000000" class="w-full aero-input rounded-xl px-3.5 py-2.5 text-xs font-mono tracking-wider">
+                    </div>
+
+                    <!-- Alias -->
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1.5">Alias Bancario <span class="text-[#E5B84B]">*</span></label>
+                        <input type="text" id="user-alias" placeholder="Ej: nombre.apellido.mp" class="w-full aero-input rounded-xl px-3.5 py-2.5 text-xs font-mono">
+                    </div>
+
+                    <button onclick="guardarDatosBancarios()" class="w-full gold-gradient text-slate-950 font-extrabold py-3 rounded-xl text-xs tracking-wider uppercase transition shadow-[0_6px_18px_rgba(212,175,55,0.28)] mt-1">
+                        Vincular Cuenta de Cobro
+                    </button>
+                </div>
+            </div>
+
+            <!-- BITÁCORA DE MOVIMIENTOS -->
+            <div class="aero-glass rounded-3xl p-5 space-y-3 border border-white/10">
+                <div class="flex justify-between items-center border-b border-white/10 pb-2.5">
+                    <h3 class="font-extrabold text-xs tracking-[0.15em] text-[#F3D078] uppercase">📑 Bitácora de Operaciones</h3>
+                    <span class="text-[10px] text-slate-400">Historial en vivo</span>
                 </div>
                 <div id="history-list" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
             </div>
 
-            <!-- Cerrar Sesión -->
-            <div class="pt-1">
-                <button onclick="cerrarSesion()" class="w-full bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 font-semibold py-3 rounded-2xl text-xs border border-rose-500/30 transition flex items-center justify-center space-x-2">
-                    <span>🚪 Cerrar Sesión</span>
+            <!-- CERRAR SESIÓN -->
+            <div class="pt-1 pb-2">
+                <button onclick="cerrarSesion()" class="w-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 font-bold py-3 rounded-2xl text-xs border border-rose-500/30 transition flex items-center justify-center space-x-2">
+                    <span>🚪 Desconectar Sesión</span>
                 </button>
             </div>
         </main>
@@ -554,7 +625,7 @@
             </div>
 
             <div class="bg-emerald-500/10 border border-emerald-400/25 rounded-xl p-2.5 text-[11px] text-slate-300 leading-relaxed">
-                ✔️ Requisito: Tener tus datos bancarios guardados en Perfil y al menos <strong>1 aeronave VIP activa</strong> adquirida mediante depósito.
+                ✔️ Requisito: Tener tu banco y datos guardados en Perfil y al menos <strong>1 aeronave VIP activa</strong> adquirida mediante depósito.
             </div>
 
             <div class="flex space-x-2.5 pt-1">
@@ -728,6 +799,7 @@
                     balance: 0,
                     profile_bonus_claimed: false,
                     has_active_product: false,
+                    bank: "",
                     alias: "",
                     cbu: "",
                     fullname: "",
@@ -858,9 +930,18 @@
             document.getElementById('profile-phone').innerText = currentUserData.phone;
             document.getElementById('my-referral-code').innerText = currentUserData.referral_code || "Sin código";
             
+            const memberCodeEl = document.getElementById('profile-member-code');
+            if (memberCodeEl) memberCodeEl.innerText = currentUserData.referral_code || "A------";
+
+            document.getElementById('user-bank').value = currentUserData.bank || "";
             document.getElementById('user-holder').value = currentUserData.fullname || "";
             document.getElementById('user-cbu').value = currentUserData.cbu || "";
             document.getElementById('user-alias').value = currentUserData.alias || "";
+
+            const bankPreview = document.getElementById('card-bank-preview');
+            const aliasPreview = document.getElementById('card-alias-preview');
+            if (bankPreview) bankPreview.innerText = currentUserData.bank || "Sin asignar";
+            if (aliasPreview) aliasPreview.innerText = currentUserData.alias || "---";
 
             if (currentUserData.profile_bonus_claimed) {
                 document.getElementById('banner-profile-bonus').classList.add('hidden');
@@ -870,8 +951,6 @@
                 document.getElementById('profile-bonus-card').classList.remove('hidden');
             }
 
-            // Actualizar individualmente cada botón del catálogo:
-            // Solo se marca "En curso" el modelo específico que ya esté activo
             const investBtns = document.querySelectorAll('.btn-invest');
             investBtns.forEach(btn => {
                 const nombreModelo = btn.getAttribute('data-plan');
@@ -1013,7 +1092,6 @@
                 return;
             }
 
-            // Mantenemos el índice original de Firestore en cada elemento para sincronizar su reloj exacto
             const listaConIndices = currentUserData.investments
                 .map((p, originalIndex) => ({ ...p, originalIndex }))
                 .reverse();
@@ -1047,7 +1125,6 @@
             }).join('');
         }
 
-        // Actualiza en vivo el reloj de CADA aeronave activa leyendo su next_payout_timestamp de Firestore
         function actualizarTemporizadoresEnVivo() {
             if (!currentUserData || !currentUserData.investments || currentUserData.investments.length === 0) return;
 
@@ -1115,7 +1192,6 @@
         }
 
         async function comprarProducto(nombre, precio, daily) {
-            // Permite comprar distintos planes, pero bloquea repetir el MISMO modelo si aún no finalizó
             const mismoPlanEnCurso = buscarPlanActivoPorNombre(nombre);
             if (mismoPlanEnCurso) {
                 mostrarCartel(`Ya tenés activo el modelo ${nombre} (${mismoPlanEnCurso.days_left} días restantes). Podrás volver a adquirir este mismo modelo cuando finalice su ciclo de 30 días, o elegir otra aeronave diferente de la flota.`, "MODELO EN CURSO", "⏳");
@@ -1211,10 +1287,10 @@
                 return;
             }
 
-            if (!currentUserData.fullname || !currentUserData.cbu || !currentUserData.alias) {
+            if (!currentUserData.bank || !currentUserData.fullname || !currentUserData.cbu || !currentUserData.alias) {
                 cerrarModal('modal-retiro');
                 navTo('perfil');
-                mostrarCartel("Completá tus datos bancarios en Mi Perfil antes de solicitar un retiro.", "DATOS BANCARIOS FALTANTES", "🏦");
+                mostrarCartel("Seleccioná tu banco y completá tus datos de cobro en Mi Perfil antes de solicitar un retiro.", "DATOS BANCARIOS FALTANTES", "🏦");
                 return;
             }
 
@@ -1259,16 +1335,18 @@
         }
 
         async function guardarDatosBancarios() {
+            const bank = document.getElementById('user-bank').value.trim();
             const holder = document.getElementById('user-holder').value.trim();
             const cbu = document.getElementById('user-cbu').value.trim();
             const alias = document.getElementById('user-alias').value.trim();
 
-            if (!holder || !cbu || !alias) {
-                mostrarCartel("Completá los tres datos bancarios obligatorios para guardar.", "CAMPOS INCOMPLETOS", "⚠️");
+            if (!bank || !holder || !cbu || !alias) {
+                mostrarCartel("Seleccioná tu banco o billetera y completá el titular, CBU/CVU y alias para vincular tu cuenta.", "DATOS INCOMPLETOS", "⚠️");
                 return;
             }
 
             const updatePayload = {
+                bank: bank,
                 fullname: holder,
                 cbu: cbu,
                 alias: alias
@@ -1293,9 +1371,9 @@
             await db.collection('users').doc(currentUserPhone).update(updatePayload);
 
             if (otorgaBono) {
-                mostrarCartel("¡Datos guardados con éxito! Se acreditaron +$3.500 ARS en tu balance de bienvenida.", "¡BONO ACREDITADO!", "🎉");
+                mostrarCartel(`¡Cuenta de ${bank} vinculada con éxito! Se acreditaron +$3.500 ARS en tu balance de bienvenida.`, "¡BONO ACREDITADO!", "🎉");
             } else {
-                mostrarCartel("¡Tus datos bancarios fueron actualizados correctamente!", "PERFIL ACTUALIZADO", "✅");
+                mostrarCartel(`¡Tus datos de ${bank} fueron actualizados correctamente!`, "CUENTA ACTUALIZADA", "✅");
             }
         }
 
