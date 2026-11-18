@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aerion - El Lujo de Llegar más lejos</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Firebase SDK (v9 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        body {
+            /* Atmósfera Nocturna Aeronáutica: Azul medianoche profundo + negro espacial */
+            background: radial-gradient(circle at 50% 0%, #0f2342 0%, #060b16 55%, #03050a 100%);
+            background-attachment: fixed;
+            color: #F1F5F9;
+        }
+        /* Cristal translúcido estilo Cabina Ejecutiva */
+        .aero-glass {
+            background: rgba(13, 22, 39, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(212, 175, 55, 0.16);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+        }
+        .aero-glass:hover {
+            border-color: rgba(212, 175, 55, 0.4);
+        }
+        .aero-input {
+            background: rgba(6, 11, 22, 0.75);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            color: #F8FAFC;
+        }
+        .aero-input:focus {
+            border-color: #E5B84B;
+            box-shadow: 0 0 0 2px rgba(229, 184, 75, 0.15);
+            outline: none;
+        }
+        .gold-gradient {
+            background: linear-gradient(135deg, #F3D078 0%, #D4AF37 50%, #B8860B 100%);
+        }
+        .gold-gradient:hover {
+            filter: brightness(1.08);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- PANTALLA DE AUTENTICACIÓN -->
+    <div id="auth-screen" class="flex-1 flex flex-col justify-center items-center p-4 max-w-md mx-auto w-full">
+        <div class="aero-glass rounded-3xl p-7 w-full">
+            <div class="text-center mb-6">
+                <img src="logo.png" alt="Logo Aerion" class="w-24 h-auto mx-auto mb-3 object-contain drop-shadow-lg" onerror="this.src='logo.PNG'">
+                <h1 class="text-2xl font-extrabold tracking-[0.2em] uppercase text-transparent bg-clip-text bg-gradient-to-r from-[#F3D078] via-[#E5B84B] to-[#C59B27]">
+                    AERION
+                </h1>
+                <p class="text-xs text-slate-400 mt-1 tracking-wide">El Lujo de Llegar más lejos</p>
+            </div>
+
+            <div class="flex bg-[#060b16]/80 border border-white/10 rounded-xl p-1 mb-6">
+                <button id="tab-register" onclick="switchTab('register')" class="flex-1 py-2 text-xs font-bold rounded-lg transition gold-gradient text-slate-950 shadow">¿Sos nuevo?</button>
+                <button id="tab-login" onclick="switchTab('login')" class="flex-1 py-2 text-xs font-semibold rounded-lg transition text-slate-400 hover:text-white">Ya estoy registrado</button>
+            </div>
+
+            <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4" autocomplete="off">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Teléfono</label>
+                    <input type="text" id="phone" placeholder="Ej: 341564778" required autocomplete="none" class="w-full aero-input rounded-xl px-4 py-3 text-sm transition">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Contraseña</label>
+                    <input type="password" id="password" placeholder="••••••••" required autocomplete="new-password" class="w-full aero-input rounded-xl px-4 py-3 text-sm transition">
+                </div>
+                
+                <div id="register-fields" class="space-y-4">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Confirmar Contraseña</label>
+                        <input type="password" id="confirm-password" placeholder="••••••••" autocomplete="new-password" class="w-full aero-input rounded-xl px-4 py-3 text-sm transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Código de Invitación <span class="text-[#E5B84B]">*Obligatorio</span></label>
+                        <input type="text" id="invite-code" placeholder="Código de quien te invitó" autocomplete="off" class="w-full aero-input rounded-xl px-4 py-3 text-sm transition">
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-btn" class="w-full gold-gradient text-slate-950 font-bold py-3.5 rounded-xl text-sm transition shadow-lg">Crear Cuenta (Bono $3.500 al completar Perfil)</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- PANEL PRINCIPAL DE 5 PESTAÑAS -->
+    <div id="app-screen" class="hidden flex-1 flex flex-col pb-24">
+        <header class="bg-[#060b16]/80 backdrop-blur-xl border-b border-[#E5B84B]/20 p-4 flex justify-between items-center sticky top-0 z-10">
+            <div class="flex items-center space-x-2.5">
+                <img src="logo.png" alt="Aerion" class="w-8 h-8 object-contain" onerror="this.src='logo.PNG'">
+                <div>
+                    <h2 class="text-base font-extrabold text-white leading-none tracking-widest">AERION</h2>
+                    <p class="text-[10px] text-[#E5B84B] tracking-wider uppercase mt-0.5">Private Aviation</p>
+                </div>
+            </div>
+            <div class="bg-[#E5B84B]/10 border border-[#E5B84B]/40 px-3.5 py-1.5 rounded-full text-[#F3D078] text-xs font-bold font-mono shadow-inner">
+                ARS <span id="user-balance">0</span>
+            </div>
+        </header>
+
+        <!-- PESTAÑA 1: INICIO -->
+        <main id="view-inicio" class="p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
+            <!-- Banner Bono Perfil -->
+            <div id="banner-profile-bonus" class="bg-gradient-to-r from-emerald-500/15 to-[#0d1627]/80 backdrop-blur-md border border-emerald-400/30 rounded-2xl p-3.5 flex justify-between items-center shadow-lg">
+                <div>
+                    <h3 class="font-bold text-xs text-emerald-300">✈️ Bono de Bienvenida ($3.500 ARS)</h3>
+                    <p class="text-[11px] text-slate-300 mt-0.5">Completá tus datos en Perfil para acreditarlo</p>
+                </div>
+                <button onclick="navTo('perfil')" class="bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold px-3 py-1.5 rounded-xl text-xs transition">Ir a Perfil</button>
+            </div>
+
+            <!-- Banner Check-in Diario -->
+            <div class="bg-gradient-to-r from-[#E5B84B]/20 via-[#0d1627]/80 to-[#0d1627]/80 backdrop-blur-md border border-[#E5B84B]/35 rounded-2xl p-4 flex justify-between items-center shadow-lg">
+                <div>
+                    <h3 class="font-bold text-sm text-[#F3D078]">🎁 Bono Diario de Vuelo</h3>
+                    <p class="text-xs text-slate-300 mt-0.5">Reclamá $400 ARS cada 24 horas</p>
+                </div>
+                <button onclick="reclamarBonoDiario()" id="btn-checkin" class="gold-gradient text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition shadow">Reclamar $400</button>
+            </div>
+
+            <!-- Catálogo de 6 Aviones VIP -->
+            <div class="space-y-3.5">
+                <!-- VIP 1 -->
+                <div class="aero-glass transition rounded-2xl p-4 flex space-x-4 items-center">
+                    <img src="vip1.png" alt="VIP 1 Cirrus Vision Jet SF50" class="w-24 h-20 object-cover rounded-xl border border-white/10" onerror="this.src='vip1.PNG'">
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-bold uppercase tracking-widest bg-[#E5B84B]/15 text-[#F3D078] px-2.5 py-0.5 rounded-full border border-[#E5B84B]/30">VIP 1</span>
+                            <span class="text-[11px] text-slate-400">30 días</span>
+                        </div>
+                        <h3 class="font-bold text-sm text-white mt-1.5">Cirrus Vision Jet SF50</h3>
+                        <p class="text-xs text-emerald-400 font-semibold mt-0.5">Diario: ARS 1,500</p>
+                        <div class="mt-2.5 flex justify-between items-center">
+                            <span class="text-sm font-bold text-[#F3D078] font-mono">ARS 10,000</span>
+                            <button onclick="comprarProducto('VIP 1 - Cirrus Vision Jet SF50', 10000, 1500)" class="gold-gradient text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition">Invertir</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIP 2 -->
+                <div class="aero-glass transition rounded-2xl p-4 flex space-x-4 items-center">
+                    <img src="vip2.png" alt="VIP 2 Cessna Citation M2 Gen2" class="w-24 h-20 object-cover rounded-xl border border-white/10" onerror="this.src='vip2.PNG'">
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-bold uppercase tracking-widest bg-[#E5B84B]/15 text-[#F3D078] px-2.5 py-0.5 rounded-full border border-[#E5B84B]/30">VIP 2</span>
+                            <span class="text-[11px] text-slate-400">30 días</span>
+                        </div>
+                        <h3 class="font-bold text-sm text-white mt-1.5">Cessna Citation M2 Gen2</h3>
+                        <p class="text-xs text-emerald-400 font-semibold mt-0.5">Diario: ARS 2,200</p>
+                        <div class="mt-2.5 flex justify-between items-center">
+                            <span class="text-sm font-bold text-[#F3D078] font-mono">ARS 20,000</span>
+                            <button onclick="comprarProducto('VIP 2 - Cessna Citation M2 Gen2', 20000, 2200)" class="gold-gradient text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition">Invertir</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIP 3 -->
+                <div class="aero-glass transition rounded-2xl p-4 flex space-x-4 items-center">
+                    <img src="vip3.png" alt="VIP 3 HondaJet Elite II" class="w-24 h-20 object-cover rounded-xl border border-white/10" onerror="this.src='vip3.PNG'">
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-bold uppercase tracking-widest bg-[#E5B84B]/15 text-[#F3D078] px-2.5 py-0.5 rounded-full border border-[#E5B84B]/30">VIP 3</span>
+                            <span class="text-[11px] text-slate-400">30 días</span>
+                        </div>
+                        <h3 class="font-bold text-sm text-white mt-1.5">HondaJet Elite II</h3>
+                        <p class="text-xs text-emerald-400 font-semibold mt-0.5">Diario: ARS 5,500</p>
+                        <div class="mt-2.5 flex justify-between items-center">
+                            <span class="text-sm font-bold text-[#F3D078] font-mono">ARS 40,000</span>
+                            <button onclick="comprarProducto('VIP 3 - HondaJet Elite II', 40000, 5500)" class="gold-gradient text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition">Invertir</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIP 4 -->
+                <div class="aero-glass transition rounded-2xl p-4 flex space-x-4 items-center">
+                    <img src="vip4.png" alt="VIP 4 Cessna Citation CJ3 Gen 2" class="w-24 h-20 object-cover rounded-xl border border-white/10" onerror="this.src='vip4.PNG'">
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-bold uppercase tracking-widest bg-[#E5B84B]/15 text-[#F3D078] px-2.5 py-0.5 rounded-full border border-[#E5B84B]/30">VIP 4</span>
+                            <span class="text-[11px] text-slate-400">30 días</span>
+                        </div>
+                        <h3 class="font-bold text-sm text-white mt-1.5">Cessna Citation CJ3 Gen 2</h3>
+                        <p class="text-xs text-emerald-400 font-semibold mt-0.5">Diario: ARS 6,500</p>
+                        <div class="mt-2.5 flex justify-between items-center">
+                            <span class="text-sm font-bold text-[#F3D078] font-mono">ARS 50,000</span>
+                            <button onclick="comprarProducto('VIP 4 - Cessna Citation CJ3 Gen 2', 50000, 6500)" class="gold-gradient text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition">Invertir</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIP 5 -->
+                <div class="aero-glass transition rounded-2xl p-4 flex space-x-4 items-center">
+                    <img src="vip5.png" alt="VIP 5 Embraer Phenom 300E" class="w-24 h-20 object-cover rounded-xl border border-white/10" onerror="this.src='vip5.PNG'">
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-bold uppercase tracking-widest bg-[#E5B84B]/15 text-[#F3D078] px-2.5 py-0.5 rounded-full border border-[#E5B84B]/30">VIP 5</span>
+                            <span class="text-[11px] text-slate-400">30 días</span>
+                        </div>
+                        <h3 class="font-bold text-sm text-white mt-1.5">Embraer Phenom 300E</h3>
+                        <p class="text-xs text-emerald-400 font-semibold mt-0.5">Diario: ARS 7,500</p>
+                        <div class="mt-2.5 flex justify-between items-center">
+                            <span class="text-sm font-bold text-[#F3D078] font-mono">ARS 60,000</span>
+                            <button onclick="comprarProducto('VIP 5 - Embraer Phenom 300E', 60000, 7500)" class="gold-gradient text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition">Invertir</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIP 6 -->
+                <div class="aero-glass border border-[#E5B84B]/50 transition rounded-2xl p-4 flex space-x-4 items-center">
+                    <img src="vip6.png" alt="VIP 6 Gulfstream G700 Executive" class="w-24 h-20 object-cover rounded-xl border border-[#E5B84B]/40" onerror="this.src='vip6.PNG'">
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-extrabold uppercase tracking-widest gold-gradient text-slate-950 px-2.5 py-0.5 rounded-full">VIP 6 • FLAGSHIP</span>
+                            <span class="text-[11px] text-slate-400">30 días</span>
+                        </div>
+                        <h3 class="font-bold text-sm text-white mt-1.5">Gulfstream G700 Executive</h3>
+                        <p class="text-xs text-emerald-400 font-semibold mt-0.5">Diario: ARS 13,000</p>
+                        <div class="mt-2.5 flex justify-between items-center">
+                            <span class="text-sm font-bold text-[#F3D078] font-mono">ARS 100,000</span>
+                            <button onclick="comprarProducto('VIP 6 - Gulfstream G700 Executive', 100000, 13000)" class="gold-gradient text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition">Invertir</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- PESTAÑA 2: MI PRODUCTO -->
+        <main id="view-productos" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
+            <h3 class="font-bold text-base text-[#F3D078]">✈️ Mi Flota Activa (Ciclo 30 Días)</h3>
+            <div id="my-products-list" class="space-y-3">
+                <div class="aero-glass rounded-2xl p-5 text-center">
+                    <p class="text-sm text-slate-400">Aún no tienes aeronaves VIP activas produciendo ingresos.</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- PESTAÑA 3: MI EQUIPO (COMISIÓN DIRECTA 20% SIN NIVELES) -->
+        <main id="view-equipo" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
+            <div class="aero-glass rounded-2xl p-4 space-y-3">
+                <h3 class="font-bold text-sm text-[#F3D078]">🔗 Tu Código de Invitación Único</h3>
+                <p class="text-xs text-slate-400">Compartí tu enlace y ganá comisiones directas por cada inversor que se sume a Aerion:</p>
+                <div class="bg-[#060b16]/80 border border-white/10 p-3 rounded-xl flex justify-between items-center">
+                    <span id="my-referral-code" class="text-sm font-mono font-bold text-[#F3D078]">Cargando...</span>
+                    <button onclick="compartirWhatsApp()" class="bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs font-bold px-3.5 py-1.5 rounded-xl transition">
+                        💬 Compartir en WhatsApp
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tarjeta Única de Recompensa Directa 20% -->
+            <div class="aero-glass border border-[#E5B84B]/35 rounded-2xl p-4 space-y-2.5">
+                <div class="flex justify-between items-center">
+                    <span class="font-bold text-sm text-white">Programa de Socios Directos</span>
+                    <span class="text-xs gold-gradient text-slate-950 px-2.5 py-0.5 rounded-full font-extrabold">20% COMISIÓN</span>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    Recibís el <strong class="text-[#F3D078]">20% directo</strong> sobre el valor del plan VIP que adquiera cada invitado tuyo, acreditado de forma automática en tu balance disponible. Sin límites de invitados ni niveles complejos.
+                </p>
+                <div class="grid grid-cols-2 gap-3 pt-2 border-t border-white/10 text-center">
+                    <div class="bg-[#060b16]/70 p-2.5 rounded-xl border border-white/5">
+                        <p class="text-[11px] text-slate-400">Invitados Totales</p>
+                        <p id="count-total-refs" class="text-base font-bold font-mono text-white">0</p>
+                    </div>
+                    <div class="bg-[#060b16]/70 p-2.5 rounded-xl border border-white/5">
+                        <p class="text-[11px] text-slate-400">Inversores Activos</p>
+                        <p id="count-active-refs" class="text-base font-bold font-mono text-emerald-400">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Listado Transparente de Invitados -->
+            <div class="aero-glass rounded-2xl p-4 space-y-3">
+                <h3 class="font-bold text-sm text-[#F3D078]">📋 Mis Invitados Directos</h3>
+                <div id="referrals-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                    <p class="text-xs text-slate-400 text-center py-2">Cargando invitados...</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- PESTAÑA 4: FINANZAS (CARGA + RETIRO + HISTORIAL) -->
+        <main id="view-finanzas" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
+            
+            <!-- MÓDULO DE CARGA DE SALDO -->
+            <div class="aero-glass rounded-2xl p-4 space-y-3">
+                <h3 class="font-bold text-sm text-[#F3D078]">💳 Carga de Saldo (Depósito)</h3>
+                <p class="text-xs text-slate-400">1. Transferí tu depósito al CVU oficial de AERION:</p>
+                
+                <div class="bg-[#060b16]/80 border border-white/10 p-3 rounded-xl flex justify-between items-center">
+                    <span id="cvu-text" class="text-xs font-mono text-slate-200">0000267900000002996367</span>
+                    <button onclick="copiarCvu()" class="bg-slate-800 hover:bg-slate-700 text-[#F3D078] text-xs font-bold px-3 py-1.5 rounded-lg transition">Copiar CVU</button>
+                </div>
+
+                <p class="text-xs text-slate-400 pt-1">2. Ingresá el monto transferido y enviá tu comprobante:</p>
+                <div class="space-y-2.5">
+                    <div class="relative">
+                        <span class="absolute left-3.5 top-2.5 text-xs text-slate-400 font-bold">$</span>
+                        <input type="number" id="deposit-amount" placeholder="Ej: 10000 (Mínimo: $10.000 ARS)" class="w-full aero-input rounded-xl pl-7 pr-3 py-2.5 text-xs font-mono">
+                    </div>
+                    <button onclick="notificarDepositoWhatsApp()" class="w-full gold-gradient text-slate-950 font-bold py-2.5 rounded-xl text-xs transition shadow flex items-center justify-center space-x-1">
+                        <span>📲 Notificar Depósito y Enviar Comprobante</span>
+                    </button>
+                </div>
+
+                <div class="bg-[#E5B84B]/10 border border-[#E5B84B]/30 rounded-xl p-2 text-center mt-1">
+                    <p class="text-[11px] text-[#F3D078] font-semibold">⚠️ Mínimo de carga permitido: $10.000 ARS</p>
+                </div>
+            </div>
+
+            <!-- SOLICITUD DE RETIRO -->
+            <div class="aero-glass rounded-2xl p-4 space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-sm text-[#F3D078]">💸 Solicitud de Retiro</h3>
+                    <span class="text-[10px] bg-[#060b16]/80 text-slate-400 px-2.5 py-0.5 rounded-full border border-white/10">Lunes a Lunes</span>
+                </div>
+                <p class="text-xs text-slate-400">Mínimo: <strong class="text-white">$3.500 ARS</strong> — Máximo: <strong class="text-white">$5.000.000 ARS</strong></p>
+                <div class="space-y-2.5">
+                    <div class="relative">
+                        <span class="absolute left-3.5 top-2.5 text-xs text-slate-400 font-bold">$</span>
+                        <input type="number" id="withdraw-amount" placeholder="Ej: 15000" class="w-full aero-input rounded-xl pl-7 pr-3 py-2.5 text-xs font-mono">
+                    </div>
+                    <button onclick="procesarSolicitudRetiro()" class="w-full gold-gradient text-slate-950 font-bold py-2.5 rounded-xl text-xs transition shadow">Solicitar Retiro</button>
+                </div>
+            </div>
+
+            <!-- HISTORIAL UNIFICADO DE MOVIMIENTOS -->
+            <div class="aero-glass rounded-2xl p-4 space-y-3">
+                <h3 class="font-bold text-sm text-[#F3D078]">📜 Historial de Movimientos</h3>
+                <div id="history-list" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
+            </div>
+        </main>
+
+        <!-- PESTAÑA 5: PERFIL -->
+        <main id="view-perfil" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
+            <div class="aero-glass rounded-2xl p-4 space-y-4">
+                <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                    <div>
+                        <p class="text-xs text-slate-400">Cuenta de Inversor</p>
+                        <h4 id="profile-phone" class="font-bold text-white font-mono">+54...</h4>
+                    </div>
+                    <span class="bg-emerald-500/20 text-emerald-300 text-xs font-semibold px-2.5 py-1 rounded-full border border-emerald-400/30">Verificado</span>
+                </div>
+
+                <!-- Aviso de Bono por Completar Perfil -->
+                <div id="profile-bonus-card" class="bg-[#E5B84B]/10 border border-[#E5B84B]/30 rounded-xl p-3 text-xs text-[#F3D078]">
+                    🎁 <strong>Bono Único de $3.500 ARS:</strong> Completá tus tres datos bancarios por primera vez para recibir $3.500 ARS en tu saldo.
+                </div>
+
+                <div class="space-y-3">
+                    <h4 class="font-bold text-xs text-slate-200">Datos Bancarios para Cobros / Retiros</h4>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Titular de la Cuenta Bancaria <span class="text-[#E5B84B]">*Obligatorio</span></label>
+                        <input type="text" id="user-holder" placeholder="Nombre completo del titular" class="w-full aero-input rounded-xl px-3 py-2.5 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">CBU / CVU <span class="text-[#E5B84B]">*Obligatorio</span></label>
+                        <input type="text" id="user-cbu" placeholder="22 dígitos de tu CBU o CVU" class="w-full aero-input rounded-xl px-3 py-2.5 text-xs font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Alias Bancario <span class="text-[#E5B84B]">*Obligatorio</span></label>
+                        <input type="text" id="user-alias" placeholder="Ej: mi.alias.mp" class="w-full aero-input rounded-xl px-3 py-2.5 text-xs">
+                    </div>
+                    <button onclick="guardarDatosBancarios()" class="w-full gold-gradient text-slate-950 font-bold py-2.5 rounded-xl text-xs transition shadow">Guardar Datos de Cobro</button>
+                </div>
+
+                <div class="pt-4 border-t border-white/10">
+                    <button onclick="cerrarSesion()" class="w-full bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 font-semibold py-2.5 rounded-xl text-xs border border-rose-500/30 transition flex items-center justify-center space-x-2">
+                        <span>🚪 Cerrar Sesión</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- BARRA NAVEGACIÓN INFERIOR FLOTANTE -->
+        <nav class="fixed bottom-0 left-0 right-0 bg-[#060b16]/90 backdrop-blur-xl border-t border-[#E5B84B]/20 flex justify-around py-2.5 z-10">
+            <button onclick="navTo('inicio')" id="nav-btn-inicio" class="text-[#F3D078] font-semibold text-xs flex flex-col items-center space-y-1">
+                <span class="text-base">✈️</span>
+                <span>Inicio</span>
+            </button>
+            <button onclick="navTo('productos')" id="nav-btn-productos" class="text-slate-400 text-xs flex flex-col items-center space-y-1">
+                <span class="text-base">📦</span>
+                <span>Mi Flota</span>
+            </button>
+            <button onclick="navTo('equipo')" id="nav-btn-equipo" class="text-slate-400 text-xs flex flex-col items-center space-y-1">
+                <span class="text-base">⭐</span>
+                <span>Invitados</span>
+            </button>
+            <button onclick="navTo('finanzas')" id="nav-btn-finanzas" class="text-slate-400 text-xs flex flex-col items-center space-y-1">
+                <span class="text-base">💰</span>
+                <span>Finanzas</span>
+            </button>
+            <button onclick="navTo('perfil')" id="nav-btn-perfil" class="text-slate-400 text-xs flex flex-col items-center space-y-1">
+                <span class="text-base">👤</span>
+                <span>Perfil</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- SCRIPT CON LOGICA FIRESTORE ACTUALIZADA PARA AERION -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBhQ8tC7IFzzXygkIQLZqeNINzZqXAtZps",
+            authDomain: "aura-7ca44.firebaseapp.com",
+            projectId: "aura-7ca44",
+            storageBucket: "aura-7ca44.firebasestorage.app",
+            messagingSenderId: "999235368894",
+            appId: "1:999235368894:web:fb73a165567fd045a6abef",
+            measurementId: "G-T8FSE583EG"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let mode = 'register';
+        let currentUserPhone = null;
+        let currentUserData = null;
+
+        function switchTab(selectedMode) {
+            mode = selectedMode;
+            const btnLogin = document.getElementById('tab-login');
+            const btnRegister = document.getElementById('tab-register');
+            const registerFields = document.getElementById('register-fields');
+            const submitBtn = document.getElementById('submit-btn');
+
+            if (mode === 'login') {
+                btnLogin.className = "flex-1 py-2 text-xs font-bold rounded-lg transition gold-gradient text-slate-950 shadow";
+                btnRegister.className = "flex-1 py-2 text-xs font-semibold rounded-lg transition text-slate-400 hover:text-white";
+                registerFields.classList.add('hidden');
+                submitBtn.innerText = "Iniciar Sesión";
+            } else {
+                btnRegister.className = "flex-1 py-2 text-xs font-bold rounded-lg transition gold-gradient text-slate-950 shadow";
+                btnLogin.className = "flex-1 py-2 text-xs font-semibold rounded-lg transition text-slate-400 hover:text-white";
+                registerFields.classList.remove('hidden');
+                submitBtn.innerText = "Crear Cuenta (Bono $3.500 al completar Perfil)";
+            }
+        }
+
+        async function handleAuth(event) {
+            event.preventDefault();
+            let phone = document.getElementById('phone').value.trim();
+            if (!phone.startsWith('+')) {
+                phone = '+549' + phone.replace(/\D/g, '');
+            }
+            const password = document.getElementById('password').value.trim();
+            const inviteCode = document.getElementById('invite-code').value.trim();
+
+            const userRef = db.collection('users').doc(phone);
+            const doc = await userRef.get();
+
+            if (mode === 'register') {
+                if (doc.exists) {
+                    alert("Este número ya se encuentra registrado. Iniciá sesión.");
+                    return;
+                }
+
+                const uniqueCode = "AE" + Math.random().toString(36).substr(2, 6).toUpperCase();
+                
+                const newUserObj = {
+                    phone: phone,
+                    password: password,
+                    referral_code: uniqueCode,
+                    invited_by: inviteCode,
+                    balance: 0,
+                    profile_bonus_claimed: false,
+                    has_active_product: false,
+                    alias: "",
+                    cbu: "",
+                    fullname: "",
+                    investments: [],
+                    withdrawals: [],
+                    deposits: [],
+                    history: [],
+                    created_at: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                await userRef.set(newUserObj);
+                localStorage.setItem('aerion_user_phone', phone);
+                alert("¡Cuenta creada en AERION! Completá tus datos en Perfil para recibir tu bono de $3.500 ARS por única vez.");
+                escucharUsuario(phone);
+            } else {
+                if (!doc.exists || doc.data().password !== password) {
+                    alert("Teléfono o contraseña incorrectos.");
+                    return;
+                }
+                localStorage.setItem('aerion_user_phone', phone);
+                escucharUsuario(phone);
+            }
+        }
+
+        function escucharUsuario(phone) {
+            currentUserPhone = phone;
+            db.collection('users').doc(phone).onSnapshot(doc => {
+                if (doc.exists) {
+                    currentUserData = doc.data();
+                    actualizarInterfazUI();
+                    contarReferidosYAcreditarComision();
+                }
+            });
+
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+        }
+
+        function actualizarInterfazUI() {
+            if (!currentUserData) return;
+
+            document.getElementById('user-balance').innerText = currentUserData.balance ? currentUserData.balance.toLocaleString() : "0";
+            document.getElementById('profile-phone').innerText = currentUserData.phone;
+            document.getElementById('my-referral-code').innerText = currentUserData.referral_code || "Sin código";
+            
+            document.getElementById('user-holder').value = currentUserData.fullname || "";
+            document.getElementById('user-cbu').value = currentUserData.cbu || "";
+            document.getElementById('user-alias').value = currentUserData.alias || "";
+
+            if (currentUserData.profile_bonus_claimed) {
+                document.getElementById('banner-profile-bonus').classList.add('hidden');
+                document.getElementById('profile-bonus-card').classList.add('hidden');
+            } else {
+                document.getElementById('banner-profile-bonus').classList.remove('hidden');
+                document.getElementById('profile-bonus-card').classList.remove('hidden');
+            }
+
+            renderHistorial();
+            renderProductosActivos();
+            actualizarTemporizadoresEnVivo();
+        }
+
+        async function notificarDepositoWhatsApp() {
+            const depositInput = document.getElementById('deposit-amount');
+            const monto = parseFloat(depositInput.value);
+
+            if (!monto || monto < 10000) {
+                alert("El monto mínimo de depósito permitido es de $10.000 ARS.");
+                return;
+            }
+
+            const nuevoHistorial = currentUserData.history || [];
+            nuevoHistorial.unshift({
+                title: "Carga de Saldo",
+                amount: monto,
+                type: "deposit",
+                status: "pending",
+                date: new Date().toLocaleTimeString()
+            });
+
+            const nuevosDepositos = currentUserData.deposits || [];
+            nuevosDepositos.unshift({ amount: monto, date: new Date().toLocaleDateString(), status: "pending" });
+
+            await db.collection('users').doc(currentUserPhone).update({
+                history: nuevoHistorial,
+                deposits: nuevosDepositos
+            });
+
+            depositInput.value = '';
+
+            const mensaje = `Hola AERION ✈️, quiero notificar mi carga de $${monto.toLocaleString()} ARS para mi cuenta registrada ${currentUserPhone}. Adjunto comprobante de transferencia.`;
+            const waUrl = `https://wa.me/message/PTDSIWHXYKYSO1?text=${encodeURIComponent(mensaje)}`;
+            window.open(waUrl, '_blank');
+        }
+
+        async function contarReferidosYAcreditarComision() {
+            if (!currentUserData || !currentUserData.referral_code) return;
+
+            const snapshot = await db.collection('users').where('invited_by', '==', currentUserData.referral_code).get();
+            
+            let totalInvitados = 0;
+            let totalActivos = 0;
+            let htmlList = "";
+            let comisionesPendientesASumar = 0;
+            let referidosProcesados = currentUserData.processed_commissions || [];
+            const historialActualizado = [...(currentUserData.history || [])];
+
+            if (snapshot.empty) {
+                document.getElementById('referrals-list').innerHTML = `<p class="text-xs text-slate-400 text-center py-2">Aún no tienes invitados registrados con tu código.</p>`;
+                document.getElementById('count-total-refs').innerText = "0";
+                document.getElementById('count-active-refs').innerText = "0";
+                return;
+            }
+
+            snapshot.forEach(doc => {
+                totalInvitados++;
+                const data = doc.data();
+                const refPhone = doc.id;
+                const esActivo = data.has_active_product || (data.investments && data.investments.length > 0);
+                
+                if (esActivo) {
+                    totalActivos++;
+
+                    if (!referidosProcesados.includes(refPhone)) {
+                        let montoPlan = 10000;
+                        let nombrePlan = "Plan VIP";
+                        if (data.investments && data.investments.length > 0 && data.investments[0].precio) {
+                            montoPlan = data.investments[0].precio;
+                            nombrePlan = data.investments[0].nombre || "Plan VIP";
+                        }
+                        const comision = montoPlan * 0.20;
+                        comisionesPendientesASumar += comision;
+                        referidosProcesados.push(refPhone);
+
+                        historialActualizado.unshift({
+                            title: `Comisión 20% (${nombrePlan})`,
+                            amount: comision,
+                            type: "referral_bonus",
+                            date: new Date().toLocaleTimeString()
+                        });
+                    }
+                }
+
+                const telOculto = data.phone ? data.phone.slice(0, 6) + '***' + data.phone.slice(-3) : 'Inversor';
+                const planInfo = (data.investments && data.investments.length > 0) ? data.investments[0].nombre : 'Sin plan activo';
+
+                htmlList += `
+                    <div class="flex justify-between items-center bg-[#060b16]/75 border border-white/5 p-2.5 rounded-xl text-xs">
+                        <div>
+                            <p class="font-semibold text-white font-mono">${telOculto}</p>
+                            <p class="text-[10px] text-slate-400">${planInfo}</p>
+                        </div>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${esActivo ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30' : 'bg-[#E5B84B]/20 text-[#F3D078] border border-[#E5B84B]/30'}">
+                            ${esActivo ? '🟢 Plan Activo (20%)' : '🟡 Pendiente'}
+                        </span>
+                    </div>
+                `;
+            });
+
+            document.getElementById('referrals-list').innerHTML = htmlList;
+            document.getElementById('count-total-refs').innerText = totalInvitados;
+            document.getElementById('count-active-refs').innerText = totalActivos;
+
+            if (comisionesPendientesASumar > 0) {
+                await db.collection('users').doc(currentUserPhone).update({
+                    balance: firebase.firestore.FieldValue.increment(comisionesPendientesASumar),
+                    processed_commissions: referidosProcesados,
+                    history: historialActualizado
+                });
+                alert(`¡Felicitaciones! Recibiste +$${comisionesPendientesASumar.toLocaleString()} ARS (20%) por la inversión de un invitado.`);
+            }
+        }
+
+        function renderProductosActivos() {
+            const container = document.getElementById('my-products-list');
+            if (!currentUserData || !currentUserData.investments || currentUserData.investments.length === 0) {
+                container.innerHTML = `<div class="aero-glass rounded-2xl p-5 text-center"><p class="text-sm text-slate-400">Aún no tienes aeronaves VIP activas produciendo ingresos.</p></div>`;
+                return;
+            }
+
+            container.innerHTML = currentUserData.investments.map((p, index) => {
+                const diasRestantes = p.days_left !== undefined ? p.days_left : 30;
+                return `
+                    <div class="aero-glass rounded-2xl p-4 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <h4 class="font-bold text-sm text-[#F3D078]">${p.nombre}</h4>
+                            <span class="text-xs bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 px-2.5 py-0.5 rounded-full font-semibold">Días restantes: ${diasRestantes} / 30</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs text-slate-400">
+                            <span>Ganancia diaria: <strong class="text-white font-mono">ARS ${p.daily.toLocaleString()}</strong></span>
+                            <span>Adquirido: ${p.date}</span>
+                        </div>
+                        <div class="bg-[#060b16]/80 p-2.5 rounded-xl flex justify-between items-center mt-2 border border-white/10">
+                            <span class="text-[11px] text-slate-200">Próxima acreditación en:</span>
+                            <span id="timer-${index}" class="text-xs font-mono font-bold text-[#F3D078] bg-[#E5B84B]/10 px-2.5 py-1 rounded-lg border border-[#E5B84B]/30">Calculando...</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function actualizarTemporizadoresEnVivo() {
+            if (!currentUserData || !currentUserData.investments) return;
+
+            const ahora = new Date().getTime();
+            let requierGuardado = false;
+
+            for (let i = 0; i < currentUserData.investments.length; i++) {
+                const inv = currentUserData.investments[i];
+                const timerEl = document.getElementById(`timer-${i}`);
+                
+                if (!inv.created_timestamp) {
+                    inv.created_timestamp = ahora;
+                    inv.last_payout_timestamp = ahora;
+                    requierGuardado = true;
+                }
+
+                const startTime = inv.last_payout_timestamp || inv.created_timestamp;
+                const nextPayout = startTime + (24 * 60 * 60 * 1000);
+                const diff = nextPayout - ahora;
+
+                if (diff <= 0) {
+                    inv.last_payout_timestamp = ahora;
+                    inv.days_left = (inv.days_left !== undefined ? inv.days_left : 30) - 1;
+
+                    currentUserData.balance = (currentUserData.balance || 0) + inv.daily;
+                    currentUserData.history.unshift({
+                        title: `Rendimiento Diario: ${inv.nombre}`,
+                        amount: inv.daily,
+                        type: "earning",
+                        date: new Date().toLocaleTimeString()
+                    });
+
+                    db.collection('users').doc(currentUserPhone).update({
+                        balance: currentUserData.balance,
+                        investments: currentUserData.investments,
+                        history: currentUserData.history
+                    });
+                } else if (timerEl) {
+                    const h = Math.floor(diff / (1000 * 60 * 60));
+                    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+                    const hh = h < 10 ? '0' + h : h;
+                    const mm = m < 10 ? '0' + m : m;
+                    const ss = s < 10 ? '0' + s : s;
+
+                    timerEl.innerText = `${hh}h ${mm}m ${ss}s`;
+                }
+            }
+
+            if (requierGuardado) {
+                db.collection('users').doc(currentUserPhone).update({
+                    investments: currentUserData.investments
+                });
+            }
+        }
+
+        function renderHistorial() {
+            const container = document.getElementById('history-list');
+            if (!currentUserData || !currentUserData.history || currentUserData.history.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-2">Sin movimientos registrados aún.</p>`;
+                return;
+            }
+            
+            container.innerHTML = currentUserData.history.map(item => {
+                let badgeEstado = "";
+                if (item.type === "withdraw") {
+                    const esCompletado = item.status === "completed";
+                    badgeEstado = `<span class="ml-2 text-[9px] px-2 py-0.5 rounded-full font-bold ${esCompletado ? 'bg-emerald-500/20 text-emerald-300' : 'bg-[#E5B84B]/20 text-[#F3D078]'}">${esCompletado ? '🟢 Retirado' : '🟡 Pendiente'}</span>`;
+                } else if (item.type === "deposit") {
+                    const esAprobado = item.status === "approved";
+                    badgeEstado = `<span class="ml-2 text-[9px] px-2 py-0.5 rounded-full font-bold ${esAprobado ? 'bg-emerald-500/20 text-emerald-300' : 'bg-[#E5B84B]/20 text-[#F3D078]'}">${esAprobado ? '🟢 Depositado' : '🟡 En Revisión'}</span>`;
+                }
+
+                return `
+                    <div class="flex justify-between items-center bg-[#060b16]/75 border border-white/5 p-2.5 rounded-xl text-xs">
+                        <div>
+                            <p class="font-semibold text-white flex items-center">${item.title} ${badgeEstado}</p>
+                            <p class="text-[10px] text-slate-400">${item.date}</p>
+                        </div>
+                        <span class="${item.amount < 0 ? 'text-rose-400' : 'text-emerald-400'} font-bold font-mono">${item.amount < 0 ? '' : '+'}${item.amount.toLocaleString()} ARS</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function comprarProducto(nombre, precio, daily) {
+            if (currentUserData.balance < precio) {
+                alert("Saldo insuficiente. Ve a Finanzas para cargar saldo (mínimo $10.000 ARS).");
+                return;
+            }
+
+            const ahora = new Date().getTime();
+            const nuevoHistorial = currentUserData.history || [];
+            nuevoHistorial.unshift({ title: "Inversión: " + nombre, amount: -precio, type: "purchase", date: new Date().toLocaleTimeString() });
+
+            const nuevasInversiones = currentUserData.investments || [];
+            nuevasInversiones.push({
+                nombre: nombre,
+                precio: precio,
+                daily: daily,
+                date: new Date().toLocaleDateString(),
+                created_timestamp: ahora,
+                last_payout_timestamp: ahora,
+                days_left: 30
+            });
+
+            await db.collection('users').doc(currentUserPhone).update({
+                balance: firebase.firestore.FieldValue.increment(-precio),
+                has_active_product: true,
+                history: nuevoHistorial,
+                investments: nuevasInversiones
+            });
+
+            alert(`¡Has adquirido ${nombre}! Tu inversión comenzó a producir ingresos diarios durante 30 días.`);
+        }
+
+        async function reclamarBonoDiario() {
+            const ahora = new Date().getTime();
+            const tiempoEspera = 24 * 60 * 60 * 1000;
+
+            if (currentUserData.last_checkin_timestamp && (ahora - currentUserData.last_checkin_timestamp) < tiempoEspera) {
+                const tiempoRestanteMs = tiempoEspera - (ahora - currentUserData.last_checkin_timestamp);
+                const horasRestantes = Math.floor(tiempoRestanteMs / (1000 * 60 * 60));
+                const minutosRestantes = Math.floor((tiempoRestanteMs % (1000 * 60 * 60)) / (1000 * 60));
+                
+                alert(`Debés esperar 24 hs entre cada reclamo. Volvé en ${horasRestantes}h y ${minutosRestantes}m.`);
+                return;
+            }
+
+            const nuevoHistorial = currentUserData.history || [];
+            nuevoHistorial.unshift({ title: "Bono Diario de Vuelo", amount: 400, type: "bonus", date: new Date().toLocaleTimeString() });
+
+            await db.collection('users').doc(currentUserPhone).update({
+                balance: firebase.firestore.FieldValue.increment(400),
+                last_checkin_timestamp: ahora,
+                history: nuevoHistorial
+            });
+
+            alert("¡Bono acreditado! Se sumaron $400 ARS a tu balance.");
+        }
+
+        async function procesarSolicitudRetiro() {
+            const withdrawInput = document.getElementById('withdraw-amount');
+            const monto = parseFloat(withdrawInput.value);
+
+            if (!monto || monto < 3500) {
+                alert("El monto mínimo para retirar es de $3.500 ARS.");
+                return;
+            }
+
+            if (monto > 5000000) {
+                alert("El tope máximo por solicitud de retiro es de $5.000.000 ARS.");
+                return;
+            }
+
+            if (!currentUserData.has_active_product && (!currentUserData.investments || currentUserData.investments.length === 0)) {
+                alert("Para solicitar un retiro debés tener al menos 1 aeronave VIP activa.");
+                navTo('inicio');
+                return;
+            }
+
+            if (!currentUserData.fullname || !currentUserData.cbu || !currentUserData.alias) {
+                alert("Completá tus datos bancarios en Perfil antes de solicitar un retiro.");
+                navTo('perfil');
+                return;
+            }
+
+            if (monto > currentUserData.balance) {
+                alert("Saldo insuficiente para retirar ese monto.");
+                return;
+            }
+
+            const ahora = new Date().getTime();
+            const tiempoEspera = 24 * 60 * 60 * 1000;
+
+            if (currentUserData.last_withdraw_timestamp && (ahora - currentUserData.last_withdraw_timestamp) < tiempoEspera) {
+                const tiempoRestanteMs = tiempoEspera - (ahora - currentUserData.last_withdraw_timestamp);
+                const horasRestantes = Math.floor(tiempoRestanteMs / (1000 * 60 * 60));
+                const minutosRestantes = Math.floor((tiempoRestanteMs % (1000 * 60 * 60)) / (1000 * 60));
+
+                alert(`Solo podés retirar 1 vez por día. Podrás retirar nuevamente en ${horasRestantes}h y ${minutosRestantes}m.`);
+                return;
+            }
+
+            const nuevoHistorial = currentUserData.history || [];
+            nuevoHistorial.unshift({
+                title: "Solicitud de Retiro",
+                amount: -monto,
+                type: "withdraw",
+                status: "pending",
+                date: new Date().toLocaleTimeString()
+            });
+
+            const nuevosRetiros = currentUserData.withdrawals || [];
+            nuevosRetiros.unshift({ amount: monto, date: new Date().toLocaleDateString(), status: "pending" });
+
+            await db.collection('users').doc(currentUserPhone).update({
+                balance: firebase.firestore.FieldValue.increment(-monto),
+                last_withdraw_timestamp: ahora,
+                history: nuevoHistorial,
+                withdrawals: nuevosRetiros
+            });
+
+            withdrawInput.value = '';
+            alert(`¡Solicitud enviada! Quedó registrada como 'Pendiente' en tu historial.`);
+        }
+
+        async function guardarDatosBancarios() {
+            const holder = document.getElementById('user-holder').value.trim();
+            const cbu = document.getElementById('user-cbu').value.trim();
+            const alias = document.getElementById('user-alias').value.trim();
+
+            if (!holder || !cbu || !alias) {
+                alert("Completá todos los datos bancarios obligatorios.");
+                return;
+            }
+
+            const updatePayload = {
+                fullname: holder,
+                cbu: cbu,
+                alias: alias
+            };
+
+            let otorgaBono = false;
+            if (!currentUserData.profile_bonus_claimed) {
+                otorgaBono = true;
+                const nuevoHistorial = currentUserData.history || [];
+                nuevoHistorial.unshift({
+                    title: "Bono por Completar Perfil (Única vez)",
+                    amount: 3500,
+                    type: "bonus",
+                    date: new Date().toLocaleTimeString()
+                });
+
+                updatePayload.profile_bonus_claimed = true;
+                updatePayload.balance = firebase.firestore.FieldValue.increment(3500);
+                updatePayload.history = nuevoHistorial;
+            }
+
+            await db.collection('users').doc(currentUserPhone).update(updatePayload);
+
+            if (otorgaBono) {
+                alert("¡Datos guardados! Se acreditaron $3.500 ARS en tu balance por completar tu perfil.");
+            } else {
+                alert("¡Datos bancarios actualizados correctamente!");
+            }
+        }
+
+        function navTo(screen) {
+            const views = ['inicio', 'productos', 'equipo', 'finanzas', 'perfil'];
+            views.forEach(v => {
+                document.getElementById('view-' + v).classList.add('hidden');
+                document.getElementById('nav-btn-' + v).className = "text-slate-400 text-xs flex flex-col items-center space-y-1";
+            });
+
+            document.getElementById('view-' + screen).classList.remove('hidden');
+            document.getElementById('nav-btn-' + screen).className = "text-[#F3D078] font-semibold text-xs flex flex-col items-center space-y-1";
+
+            if (screen === 'productos') {
+                renderProductosActivos();
+                actualizarTemporizadoresEnVivo();
+            }
+        }
+
+        function compartirWhatsApp() {
+            const codigo = currentUserData && currentUserData.referral_code ? currentUserData.referral_code : "";
+            const inviteUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(codigo)}`;
+            const mensaje = `¡Hola! Sumate a AERION — El Lujo de Llegar más lejos ✈️. Registrate con mi enlace directo y recibí $3.500 ARS al completar tu perfil: ${inviteUrl}`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`, '_blank');
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('aerion_user_phone');
+            location.reload();
+        }
+
+        function copiarCvu() {
+            const cvuText = document.getElementById('cvu-text').innerText;
+            navigator.clipboard.writeText(cvuText).then(() => {
+                alert('¡CVU copiado al portapapeles!');
+            });
+        }
+
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref');
+
+            if (refCode) {
+                switchTab('register');
+                document.getElementById('invite-code').value = refCode;
+            }
+
+            const savedPhone = localStorage.getItem('aerion_user_phone');
+            if (savedPhone) escucharUsuario(savedPhone);
+
+            setInterval(actualizarTemporizadoresEnVivo, 1000);
+        };
+    </script>
+</body>
+</html>
