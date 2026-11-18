@@ -20,11 +20,11 @@
         }
         /* Cristal translúcido estilo Cabina Ejecutiva */
         .aero-glass {
-            background: rgba(13, 22, 39, 0.65);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(212, 175, 55, 0.16);
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+            background: rgba(13, 22, 39, 0.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(212, 175, 55, 0.18);
+            box-shadow: 0 12px 32px -10px rgba(0, 0, 0, 0.75);
         }
         .aero-glass:hover {
             border-color: rgba(212, 175, 55, 0.4);
@@ -49,45 +49,104 @@
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col">
 
-    <!-- PANTALLA DE AUTENTICACIÓN -->
-    <div id="auth-screen" class="flex-1 flex flex-col justify-center items-center p-4 max-w-md mx-auto w-full">
-        <div class="aero-glass rounded-3xl p-7 w-full">
-            <div class="text-center mb-6">
-                <img src="logo.png" alt="Logo Aerion" class="w-24 h-auto mx-auto mb-3 object-contain drop-shadow-lg" onerror="this.src='logo.PNG'">
-                <h1 class="text-2xl font-extrabold tracking-[0.2em] uppercase text-transparent bg-clip-text bg-gradient-to-r from-[#F3D078] via-[#E5B84B] to-[#C59B27]">
-                    AERION
-                </h1>
-                <p class="text-xs text-slate-400 mt-1 tracking-wide">El Lujo de Llegar más lejos</p>
+    <!-- PANTALLA DE AUTENTICACIÓN (NUEVO ESTILO MINIMALISTA NEGRO Y DORADO) -->
+    <div id="auth-screen" class="flex-1 flex flex-col justify-between max-w-md mx-auto w-full relative overflow-hidden">
+        
+        <!-- Cabecera Superior con Marca de Agua Aeronáutica -->
+        <div class="relative pt-10 pb-8 px-6 text-center select-none">
+            <!-- Marca de agua gigante de fondo -->
+            <div class="absolute inset-x-0 top-4 flex justify-center pointer-events-none opacity-[0.06]">
+                <span class="text-7xl font-black tracking-[0.25em] text-[#F3D078]">AERION</span>
+            </div>
+            
+            <img src="logo.png" alt="Logo Aerion" class="w-16 h-auto mx-auto mb-2 object-contain drop-shadow-lg relative z-10" onerror="this.src='logo.PNG'">
+            <h1 class="text-2xl font-extrabold tracking-[0.28em] uppercase text-transparent bg-clip-text bg-gradient-to-r from-[#F3D078] via-[#E5B84B] to-[#C59B27] relative z-10">
+                AERION
+            </h1>
+            <p class="text-[11px] font-semibold tracking-[0.35em] text-slate-300 uppercase mt-1 relative z-10">
+                BIENVENIDO
+            </p>
+            <p class="text-[10px] text-[#E5B84B]/80 tracking-wider mt-1 relative z-10">
+                El Lujo de Llegar más lejos
+            </p>
+        </div>
+
+        <!-- Tarjeta Principal Redondeada -->
+        <div class="flex-1 bg-[#090f1d]/95 backdrop-blur-xl border-t border-x border-[#E5B84B]/25 rounded-t-[2.2rem] px-7 pt-8 pb-10 shadow-[0_-15px_40px_rgba(0,0,0,0.8)] flex flex-col justify-between">
+            <div>
+                <!-- Título dinámico y divisor con punto dorado -->
+                <div class="text-center mb-7">
+                    <h2 id="auth-title" class="text-base font-extrabold tracking-[0.18em] uppercase text-white">
+                        CREAR CUENTA
+                    </h2>
+                    <div class="flex items-center justify-center space-x-3 mt-3">
+                        <span class="h-[1px] w-12 bg-gradient-to-r from-transparent to-[#E5B84B]/60"></span>
+                        <span class="w-2 h-2 rounded-full bg-[#E5B84B] shadow-[0_0_8px_#E5B84B]"></span>
+                        <span class="h-[1px] w-12 bg-gradient-to-l from-transparent to-[#E5B84B]/60"></span>
+                    </div>
+                </div>
+
+                <!-- Formulario con líneas inferiores minimalistas e íconos dorados -->
+                <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-5" autocomplete="off">
+                    
+                    <!-- Campo 1: Teléfono con prefijo +54 -->
+                    <div class="flex items-center border-b border-white/15 focus-within:border-[#E5B84B] pb-3 transition-colors">
+                        <svg class="w-5 h-5 text-[#E5B84B] mr-3 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                        </svg>
+                        <span class="text-sm font-bold text-[#F3D078] mr-2.5 select-none">+54</span>
+                        <input type="tel" id="phone" placeholder="Número de teléfono móvil" required autocomplete="none" class="w-full bg-transparent text-sm text-white placeholder-slate-500 focus:outline-none">
+                    </div>
+
+                    <!-- Campo 2: Contraseña + Ojo visor -->
+                    <div class="flex items-center border-b border-white/15 focus-within:border-[#E5B84B] pb-3 transition-colors">
+                        <svg class="w-5 h-5 text-[#E5B84B] mr-3 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+                        </svg>
+                        <input type="password" id="password" placeholder="Contraseña" required autocomplete="new-password" class="w-full bg-transparent text-sm text-white placeholder-slate-500 focus:outline-none">
+                        <button type="button" onclick="togglePasswordVisibility('password')" class="text-slate-400 hover:text-[#F3D078] ml-2 focus:outline-none" title="Mostrar/Ocultar contraseña">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Campos Exclusivos de Registro -->
+                    <div id="register-fields" class="space-y-5">
+                        <!-- Campo 3: Confirmar Contraseña -->
+                        <div class="flex items-center border-b border-white/15 focus-within:border-[#E5B84B] pb-3 transition-colors">
+                            <svg class="w-5 h-5 text-[#E5B84B] mr-3 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                            </svg>
+                            <input type="password" id="confirm-password" placeholder="Confirmar contraseña" autocomplete="new-password" class="w-full bg-transparent text-sm text-white placeholder-slate-500 focus:outline-none">
+                        </div>
+
+                        <!-- Campo 4: Código de Invitación (Opcional) -->
+                        <div class="flex items-center border-b border-white/15 focus-within:border-[#E5B84B] pb-3 transition-colors">
+                            <svg class="w-5 h-5 text-[#E5B84B] mr-3 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                            </svg>
+                            <input type="text" id="invite-code" placeholder="Código de invitación (Opcional)" autocomplete="off" class="w-full bg-transparent text-sm text-[#F3D078] font-mono placeholder-slate-500 focus:outline-none uppercase">
+                        </div>
+                    </div>
+
+                    <!-- Botón Principal -->
+                    <div class="pt-3">
+                        <button type="submit" id="submit-btn" class="w-full gold-gradient text-slate-950 font-extrabold py-3.5 rounded-full text-sm tracking-wide transition shadow-[0_6px_20px_rgba(212,175,55,0.35)]">
+                            Crear cuenta
+                        </button>
+                    </div>
+                </form>
             </div>
 
-            <div class="flex bg-[#060b16]/80 border border-white/10 rounded-xl p-1 mb-6">
-                <button id="tab-register" onclick="switchTab('register')" class="flex-1 py-2 text-xs font-bold rounded-lg transition gold-gradient text-slate-950 shadow">¿Sos nuevo?</button>
-                <button id="tab-login" onclick="switchTab('login')" class="flex-1 py-2 text-xs font-semibold rounded-lg transition text-slate-400 hover:text-white">Ya estoy registrado</button>
+            <!-- Enlace inferior para alternar entre Registro e Inicio de Sesión -->
+            <div class="text-center pt-6">
+                <p id="auth-switch-prompt" class="text-xs text-slate-400">
+                    ¿Ya tienes una cuenta? 
+                    <button type="button" onclick="switchTab('login')" class="text-[#F3D078] font-bold hover:underline ml-1">Inicia sesión ahora</button>
+                </p>
             </div>
-
-            <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4" autocomplete="off">
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Teléfono</label>
-                    <input type="text" id="phone" placeholder="Ej: 341564778" required autocomplete="none" class="w-full aero-input rounded-xl px-4 py-3 text-sm transition">
-                </div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Contraseña</label>
-                    <input type="password" id="password" placeholder="••••••••" required autocomplete="new-password" class="w-full aero-input rounded-xl px-4 py-3 text-sm transition">
-                </div>
-                
-                <div id="register-fields" class="space-y-4">
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Confirmar Contraseña</label>
-                        <input type="password" id="confirm-password" placeholder="••••••••" autocomplete="new-password" class="w-full aero-input rounded-xl px-4 py-3 text-sm transition">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Código de Invitación <span class="text-[#E5B84B]">*Obligatorio</span></label>
-                        <input type="text" id="invite-code" placeholder="Código de quien te invitó" autocomplete="off" class="w-full aero-input rounded-xl px-4 py-3 text-sm transition">
-                    </div>
-                </div>
-
-                <button type="submit" id="submit-btn" class="w-full gold-gradient text-slate-950 font-bold py-3.5 rounded-xl text-sm transition shadow-lg">Crear Cuenta (Bono $3.500 al completar Perfil)</button>
-            </form>
         </div>
     </div>
 
@@ -403,16 +462,16 @@
         </nav>
     </div>
 
-    <!-- SCRIPT CON LOGICA FIRESTORE ACTUALIZADA PARA AERION -->
+    <!-- SCRIPT CON LOGICA FIRESTORE CONECTADO A AERION-F0CE9 -->
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyBhQ8tC7IFzzXygkIQLZqeNINzZqXAtZps",
-            authDomain: "aura-7ca44.firebaseapp.com",
-            projectId: "aura-7ca44",
-            storageBucket: "aura-7ca44.firebasestorage.app",
-            messagingSenderId: "999235368894",
-            appId: "1:999235368894:web:fb73a165567fd045a6abef",
-            measurementId: "G-T8FSE583EG"
+            apiKey: "AIzaSyBdmXanaJt_k2YR4w_yyRqCi3Sdd7MgZNg",
+            authDomain: "aerion-f0ce9.firebaseapp.com",
+            projectId: "aerion-f0ce9",
+            storageBucket: "aerion-f0ce9.firebasestorage.app",
+            messagingSenderId: "196884612018",
+            appId: "1:196884612018:web:c69445936d221d5dad1aab",
+            measurementId: "G-YD0Q5GY115"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -422,51 +481,80 @@
         let currentUserPhone = null;
         let currentUserData = null;
 
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
         function switchTab(selectedMode) {
             mode = selectedMode;
-            const btnLogin = document.getElementById('tab-login');
-            const btnRegister = document.getElementById('tab-register');
+            const authTitle = document.getElementById('auth-title');
             const registerFields = document.getElementById('register-fields');
             const submitBtn = document.getElementById('submit-btn');
+            const switchPrompt = document.getElementById('auth-switch-prompt');
 
             if (mode === 'login') {
-                btnLogin.className = "flex-1 py-2 text-xs font-bold rounded-lg transition gold-gradient text-slate-950 shadow";
-                btnRegister.className = "flex-1 py-2 text-xs font-semibold rounded-lg transition text-slate-400 hover:text-white";
+                authTitle.innerText = "INICIAR SESIÓN";
                 registerFields.classList.add('hidden');
-                submitBtn.innerText = "Iniciar Sesión";
+                submitBtn.innerText = "Iniciar sesión";
+                switchPrompt.innerHTML = `¿Aún no tienes una cuenta? <button type="button" onclick="switchTab('register')" class="text-[#F3D078] font-bold hover:underline ml-1">Crear cuenta ahora</button>`;
             } else {
-                btnRegister.className = "flex-1 py-2 text-xs font-bold rounded-lg transition gold-gradient text-slate-950 shadow";
-                btnLogin.className = "flex-1 py-2 text-xs font-semibold rounded-lg transition text-slate-400 hover:text-white";
+                authTitle.innerText = "CREAR CUENTA";
                 registerFields.classList.remove('hidden');
-                submitBtn.innerText = "Crear Cuenta (Bono $3.500 al completar Perfil)";
+                submitBtn.innerText = "Crear cuenta";
+                switchPrompt.innerHTML = `¿Ya tienes una cuenta? <button type="button" onclick="switchTab('login')" class="text-[#F3D078] font-bold hover:underline ml-1">Inicia sesión ahora</button>`;
             }
+        }
+
+        // Genera un código único con formato A + 6 dígitos al azar (ej. A482910)
+        async function generarCodigoUnico() {
+            let codigoGenerado = "";
+            let existe = true;
+            while (existe) {
+                const numeroAleatorio = Math.floor(100000 + Math.random() * 900000);
+                codigoGenerado = "A" + numeroAleatorio;
+                const check = await db.collection('users').where('referral_code', '==', codigoGenerado).limit(1).get();
+                existe = !check.empty;
+            }
+            return codigoGenerado;
         }
 
         async function handleAuth(event) {
             event.preventDefault();
-            let phone = document.getElementById('phone').value.trim();
-            if (!phone.startsWith('+')) {
-                phone = '+549' + phone.replace(/\D/g, '');
+            const rawPhone = document.getElementById('phone').value.replace(/\D/g, '');
+            if (rawPhone.length < 8) {
+                alert("Ingresá un número de teléfono móvil válido.");
+                return;
             }
+            const phone = '+549' + rawPhone;
             const password = document.getElementById('password').value.trim();
-            const inviteCode = document.getElementById('invite-code').value.trim();
+            const confirmPassword = document.getElementById('confirm-password').value.trim();
+            const inviteCode = document.getElementById('invite-code').value.trim().toUpperCase();
 
             const userRef = db.collection('users').doc(phone);
             const doc = await userRef.get();
 
             if (mode === 'register') {
+                if (password !== confirmPassword) {
+                    alert("Las contraseñas no coinciden. Verificá e intentá nuevamente.");
+                    return;
+                }
                 if (doc.exists) {
                     alert("Este número ya se encuentra registrado. Iniciá sesión.");
                     return;
                 }
 
-                const uniqueCode = "AE" + Math.random().toString(36).substr(2, 6).toUpperCase();
+                const submitBtn = document.getElementById('submit-btn');
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Creando cuenta...";
+
+                const uniqueCode = await generarCodigoUnico();
                 
                 const newUserObj = {
                     phone: phone,
                     password: password,
                     referral_code: uniqueCode,
-                    invited_by: inviteCode,
+                    invited_by: inviteCode || "",
                     balance: 0,
                     profile_bonus_claimed: false,
                     has_active_product: false,
@@ -482,7 +570,9 @@
 
                 await userRef.set(newUserObj);
                 localStorage.setItem('aerion_user_phone', phone);
-                alert("¡Cuenta creada en AERION! Completá tus datos en Perfil para recibir tu bono de $3.500 ARS por única vez.");
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Crear cuenta";
+                alert(`¡Bienvenido a AERION! Tu código de socio único es ${uniqueCode}. Completá tus datos en Perfil para recibir $3.500 ARS.`);
                 escucharUsuario(phone);
             } else {
                 if (!doc.exists || doc.data().password !== password) {
@@ -961,7 +1051,7 @@
 
             if (refCode) {
                 switchTab('register');
-                document.getElementById('invite-code').value = refCode;
+                document.getElementById('invite-code').value = refCode.toUpperCase();
             }
 
             const savedPhone = localStorage.getItem('aerion_user_phone');
