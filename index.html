@@ -45,16 +45,22 @@
         .gold-gradient:hover {
             filter: brightness(1.08);
         }
+        @keyframes modalPop {
+            0% { opacity: 0; transform: scale(0.93) translateY(8px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-modal {
+            animation: modalPop 0.22s ease-out forwards;
+        }
     </style>
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col">
 
-    <!-- PANTALLA DE AUTENTICACIÓN (NUEVO ESTILO MINIMALISTA NEGRO Y DORADO) -->
+    <!-- PANTALLA DE AUTENTICACIÓN -->
     <div id="auth-screen" class="flex-1 flex flex-col justify-between max-w-md mx-auto w-full relative overflow-hidden">
         
         <!-- Cabecera Superior con Marca de Agua Aeronáutica -->
         <div class="relative pt-10 pb-8 px-6 text-center select-none">
-            <!-- Marca de agua gigante de fondo -->
             <div class="absolute inset-x-0 top-4 flex justify-center pointer-events-none opacity-[0.06]">
                 <span class="text-7xl font-black tracking-[0.25em] text-[#F3D078]">AERION</span>
             </div>
@@ -74,7 +80,6 @@
         <!-- Tarjeta Principal Redondeada -->
         <div class="flex-1 bg-[#090f1d]/95 backdrop-blur-xl border-t border-x border-[#E5B84B]/25 rounded-t-[2.2rem] px-7 pt-8 pb-10 shadow-[0_-15px_40px_rgba(0,0,0,0.8)] flex flex-col justify-between">
             <div>
-                <!-- Título dinámico y divisor con punto dorado -->
                 <div class="text-center mb-7">
                     <h2 id="auth-title" class="text-base font-extrabold tracking-[0.18em] uppercase text-white">
                         CREAR CUENTA
@@ -86,9 +91,7 @@
                     </div>
                 </div>
 
-                <!-- Formulario con líneas inferiores minimalistas e íconos dorados -->
                 <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-5" autocomplete="off">
-                    
                     <!-- Campo 1: Teléfono con prefijo +54 -->
                     <div class="flex items-center border-b border-white/15 focus-within:border-[#E5B84B] pb-3 transition-colors">
                         <svg class="w-5 h-5 text-[#E5B84B] mr-3 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -140,7 +143,7 @@
                 </form>
             </div>
 
-            <!-- Enlace inferior para alternar entre Registro e Inicio de Sesión -->
+            <!-- Enlace inferior para alternar -->
             <div class="text-center pt-6">
                 <p id="auth-switch-prompt" class="text-xs text-slate-400">
                     ¿Ya tienes una cuenta? 
@@ -150,9 +153,9 @@
         </div>
     </div>
 
-    <!-- PANEL PRINCIPAL DE 5 PESTAÑAS -->
+    <!-- PANEL PRINCIPAL DE 4 PESTAÑAS -->
     <div id="app-screen" class="hidden flex-1 flex flex-col pb-24">
-        <header class="bg-[#060b16]/80 backdrop-blur-xl border-b border-[#E5B84B]/20 p-4 flex justify-between items-center sticky top-0 z-10">
+        <header class="bg-[#060b16]/85 backdrop-blur-xl border-b border-[#E5B84B]/20 p-4 flex justify-between items-center sticky top-0 z-20">
             <div class="flex items-center space-x-2.5">
                 <img src="logo.png" alt="Aerion" class="w-8 h-8 object-contain" onerror="this.src='logo.PNG'">
                 <div>
@@ -167,13 +170,33 @@
 
         <!-- PESTAÑA 1: INICIO -->
         <main id="view-inicio" class="p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
+            
+            <!-- Accesos Rápidos: Depositar y Retirar -->
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="abrirModalDeposito()" class="aero-glass border border-[#E5B84B]/40 rounded-2xl p-3.5 flex items-center justify-center space-x-2.5 hover:bg-[#E5B84B]/10 transition active:scale-95">
+                    <span class="w-8 h-8 rounded-full gold-gradient text-slate-950 flex items-center justify-center font-extrabold text-sm shadow">💳</span>
+                    <div class="text-left">
+                        <p class="text-xs font-extrabold text-white uppercase tracking-wider">Depositar</p>
+                        <p class="text-[10px] text-[#F3D078]">Cargar saldo</p>
+                    </div>
+                </button>
+
+                <button onclick="abrirModalRetiro()" class="aero-glass border border-emerald-400/35 rounded-2xl p-3.5 flex items-center justify-center space-x-2.5 hover:bg-emerald-500/10 transition active:scale-95">
+                    <span class="w-8 h-8 rounded-full bg-emerald-400 text-slate-950 flex items-center justify-center font-extrabold text-sm shadow">💸</span>
+                    <div class="text-left">
+                        <p class="text-xs font-extrabold text-white uppercase tracking-wider">Retirar</p>
+                        <p class="text-[10px] text-emerald-300">Cobrar fondos</p>
+                    </div>
+                </button>
+            </div>
+
             <!-- Banner Bono Perfil -->
             <div id="banner-profile-bonus" class="bg-gradient-to-r from-emerald-500/15 to-[#0d1627]/80 backdrop-blur-md border border-emerald-400/30 rounded-2xl p-3.5 flex justify-between items-center shadow-lg">
                 <div>
                     <h3 class="font-bold text-xs text-emerald-300">✈️ Bono de Bienvenida ($3.500 ARS)</h3>
                     <p class="text-[11px] text-slate-300 mt-0.5">Completá tus datos en Perfil para acreditarlo</p>
                 </div>
-                <button onclick="navTo('perfil')" class="bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold px-3 py-1.5 rounded-xl text-xs transition">Ir a Perfil</button>
+                <button onclick="navTo('perfil')" class="bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold px-3 py-1.5 rounded-xl text-xs transition shrink-0">Ir a Perfil</button>
             </div>
 
             <!-- Banner Check-in Diario -->
@@ -182,7 +205,7 @@
                     <h3 class="font-bold text-sm text-[#F3D078]">🎁 Bono Diario de Vuelo</h3>
                     <p class="text-xs text-slate-300 mt-0.5">Reclamá $400 ARS cada 24 horas</p>
                 </div>
-                <button onclick="reclamarBonoDiario()" id="btn-checkin" class="gold-gradient text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition shadow">Reclamar $400</button>
+                <button onclick="reclamarBonoDiario()" id="btn-checkin" class="gold-gradient text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition shadow shrink-0">Reclamar $400</button>
             </div>
 
             <!-- Catálogo de 6 Aviones VIP -->
@@ -199,7 +222,7 @@
                         <p class="text-xs text-emerald-400 font-semibold mt-0.5">Diario: ARS 1,500</p>
                         <div class="mt-2.5 flex justify-between items-center">
                             <span class="text-sm font-bold text-[#F3D078] font-mono">ARS 10,000</span>
-                            <button onclick="comprarProducto('VIP 1 - Cirrus Vision Jet SF50', 10000, 1500)" class="gold-gradient text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition">Invertir</button>
+                            <button data-plan="VIP 1 - Cirrus Vision Jet SF50" onclick="comprarProducto('VIP 1 - Cirrus Vision Jet SF50', 10000, 1500)" class="btn-invest gold-gradient text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition">Invertir</button>
                         </div>
                     </div>
                 </div>
@@ -216,7 +239,7 @@
                         <p class="text-xs text-emerald-400 font-semibold mt-0.5">Diario: ARS 2,200</p>
                         <div class="mt-2.5 flex justify-between items-center">
                             <span class="text-sm font-bold text-[#F3D078] font-mono">ARS 20,000</span>
-                            <button onclick="comprarProducto('VIP 2 - Cessna Citation M2 Gen2', 20000, 2200)" class="gold-gradient text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition">Invertir</button>
+                            <button data-plan="VIP 2 - Cessna Citation M2 Gen2" onclick="comprarProducto('VIP 2 - Cessna Citation M2 Gen2', 20000, 2200)" class="btn-invest gold-gradient text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition">Invertir</button>
                         </div>
                     </div>
                 </div>
@@ -233,7 +256,7 @@
                         <p class="text-xs text-emerald-400 font-semibold mt-0.5">Diario: ARS 5,500</p>
                         <div class="mt-2.5 flex justify-between items-center">
                             <span class="text-sm font-bold text-[#F3D078] font-mono">ARS 40,000</span>
-                            <button onclick="comprarProducto('VIP 3 - HondaJet Elite II', 40000, 5500)" class="gold-gradient text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition">Invertir</button>
+                            <button data-plan="VIP 3 - HondaJet Elite II" onclick="comprarProducto('VIP 3 - HondaJet Elite II', 40000, 5500)" class="btn-invest gold-gradient text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition">Invertir</button>
                         </div>
                     </div>
                 </div>
@@ -250,7 +273,7 @@
                         <p class="text-xs text-emerald-400 font-semibold mt-0.5">Diario: ARS 6,500</p>
                         <div class="mt-2.5 flex justify-between items-center">
                             <span class="text-sm font-bold text-[#F3D078] font-mono">ARS 50,000</span>
-                            <button onclick="comprarProducto('VIP 4 - Cessna Citation CJ3 Gen 2', 50000, 6500)" class="gold-gradient text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition">Invertir</button>
+                            <button data-plan="VIP 4 - Cessna Citation CJ3 Gen 2" onclick="comprarProducto('VIP 4 - Cessna Citation CJ3 Gen 2', 50000, 6500)" class="btn-invest gold-gradient text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition">Invertir</button>
                         </div>
                     </div>
                 </div>
@@ -267,7 +290,7 @@
                         <p class="text-xs text-emerald-400 font-semibold mt-0.5">Diario: ARS 7,500</p>
                         <div class="mt-2.5 flex justify-between items-center">
                             <span class="text-sm font-bold text-[#F3D078] font-mono">ARS 60,000</span>
-                            <button onclick="comprarProducto('VIP 5 - Embraer Phenom 300E', 60000, 7500)" class="gold-gradient text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition">Invertir</button>
+                            <button data-plan="VIP 5 - Embraer Phenom 300E" onclick="comprarProducto('VIP 5 - Embraer Phenom 300E', 60000, 7500)" class="btn-invest gold-gradient text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition">Invertir</button>
                         </div>
                     </div>
                 </div>
@@ -284,16 +307,19 @@
                         <p class="text-xs text-emerald-400 font-semibold mt-0.5">Diario: ARS 13,000</p>
                         <div class="mt-2.5 flex justify-between items-center">
                             <span class="text-sm font-bold text-[#F3D078] font-mono">ARS 100,000</span>
-                            <button onclick="comprarProducto('VIP 6 - Gulfstream G700 Executive', 100000, 13000)" class="gold-gradient text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition">Invertir</button>
+                            <button data-plan="VIP 6 - Gulfstream G700 Executive" onclick="comprarProducto('VIP 6 - Gulfstream G700 Executive', 100000, 13000)" class="btn-invest gold-gradient text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition">Invertir</button>
                         </div>
                     </div>
                 </div>
             </div>
         </main>
 
-        <!-- PESTAÑA 2: MI PRODUCTO -->
+        <!-- PESTAÑA 2: MI FLOTA -->
         <main id="view-productos" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
-            <h3 class="font-bold text-base text-[#F3D078]">✈️ Mi Flota Activa (Ciclo 30 Días)</h3>
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-base text-[#F3D078]">✈️ Mi Flota (Ciclo 30 Días)</h3>
+                <span class="text-[10px] bg-emerald-500/15 text-emerald-300 border border-emerald-400/30 px-2.5 py-0.5 rounded-full">Sincronizado en la Nube</span>
+            </div>
             <div id="my-products-list" class="space-y-3">
                 <div class="aero-glass rounded-2xl p-5 text-center">
                     <p class="text-sm text-slate-400">Aún no tienes aeronaves VIP activas produciendo ingresos.</p>
@@ -301,15 +327,15 @@
             </div>
         </main>
 
-        <!-- PESTAÑA 3: MI EQUIPO (COMISIÓN DIRECTA 20% SIN NIVELES) -->
-        <main id="view-equipo" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
+        <!-- PESTAÑA 3: MI TRIPULACIÓN + SOPORTE Y COMUNIDAD -->
+        <main id="view-tripulacion" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
             <div class="aero-glass rounded-2xl p-4 space-y-3">
                 <h3 class="font-bold text-sm text-[#F3D078]">🔗 Tu Código de Invitación Único</h3>
-                <p class="text-xs text-slate-400">Compartí tu enlace y ganá comisiones directas por cada inversor que se sume a Aerion:</p>
+                <p class="text-xs text-slate-400">Compartí tu enlace y ganá comisiones directas por cada pasajero que se sume a tu tripulación:</p>
                 <div class="bg-[#060b16]/80 border border-white/10 p-3 rounded-xl flex justify-between items-center">
                     <span id="my-referral-code" class="text-sm font-mono font-bold text-[#F3D078]">Cargando...</span>
                     <button onclick="compartirWhatsApp()" class="bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs font-bold px-3.5 py-1.5 rounded-xl transition">
-                        💬 Compartir en WhatsApp
+                        💬 Invitar por WhatsApp
                     </button>
                 </div>
             </div>
@@ -317,15 +343,15 @@
             <!-- Tarjeta Única de Recompensa Directa 20% -->
             <div class="aero-glass border border-[#E5B84B]/35 rounded-2xl p-4 space-y-2.5">
                 <div class="flex justify-between items-center">
-                    <span class="font-bold text-sm text-white">Programa de Socios Directos</span>
-                    <span class="text-xs gold-gradient text-slate-950 px-2.5 py-0.5 rounded-full font-extrabold">20% COMISIÓN</span>
+                    <span class="font-bold text-sm text-white">Comisión Directa de Tripulación</span>
+                    <span class="text-xs gold-gradient text-slate-950 px-2.5 py-0.5 rounded-full font-extrabold">20% DIRECTO</span>
                 </div>
                 <p class="text-xs text-slate-300 leading-relaxed">
-                    Recibís el <strong class="text-[#F3D078]">20% directo</strong> sobre el valor del plan VIP que adquiera cada invitado tuyo, acreditado de forma automática en tu balance disponible. Sin límites de invitados ni niveles complejos.
+                    Recibís el <strong class="text-[#F3D078]">20% directo</strong> sobre el valor del plan VIP que adquiera cada miembro de tu tripulación, acreditado automáticamente en tu balance.
                 </p>
                 <div class="grid grid-cols-2 gap-3 pt-2 border-t border-white/10 text-center">
                     <div class="bg-[#060b16]/70 p-2.5 rounded-xl border border-white/5">
-                        <p class="text-[11px] text-slate-400">Invitados Totales</p>
+                        <p class="text-[11px] text-slate-400">Tripulación Total</p>
                         <p id="count-total-refs" class="text-base font-bold font-mono text-white">0</p>
                     </div>
                     <div class="bg-[#060b16]/70 p-2.5 rounded-xl border border-white/5">
@@ -335,68 +361,61 @@
                 </div>
             </div>
 
+            <!-- Centro de Soporte y Comunidad Oficial -->
+            <div class="aero-glass border border-[#E5B84B]/30 rounded-2xl p-4 space-y-3">
+                <div>
+                    <h3 class="font-bold text-sm text-[#F3D078]">🎧 Soporte Oficial & Comunidad Aerion</h3>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Atención personalizada y canales oficiales de novedades:</p>
+                </div>
+
+                <!-- Asesoras de Soporte WhatsApp -->
+                <div class="grid grid-cols-2 gap-2.5">
+                    <a href="https://wa.me/5493884554597" target="_blank" rel="noopener noreferrer" class="bg-[#060b16]/85 hover:bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 flex items-center space-x-2.5 transition">
+                        <span class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-sm shrink-0">👩‍💼</span>
+                        <div>
+                            <p class="text-xs font-bold text-white">Paula</p>
+                            <p class="text-[10px] text-emerald-400">Soporte WhatsApp</p>
+                        </div>
+                    </a>
+
+                    <a href="https://wa.me/5493884554603" target="_blank" rel="noopener noreferrer" class="bg-[#060b16]/85 hover:bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 flex items-center space-x-2.5 transition">
+                        <span class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-sm shrink-0">👩‍💼</span>
+                        <div>
+                            <p class="text-xs font-bold text-white">Angela</p>
+                            <p class="text-[10px] text-emerald-400">Soporte WhatsApp</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Canales Oficiales -->
+                <div class="grid grid-cols-2 gap-2.5 pt-1">
+                    <a href="https://t.me/aerion_11" target="_blank" rel="noopener noreferrer" class="bg-[#060b16]/85 hover:bg-sky-500/10 border border-sky-400/30 rounded-xl p-3 flex items-center space-x-2.5 transition">
+                        <span class="w-8 h-8 rounded-full bg-sky-500/20 text-sky-300 flex items-center justify-center text-sm shrink-0">✈️</span>
+                        <div>
+                            <p class="text-xs font-bold text-white">Telegram</p>
+                            <p class="text-[10px] text-sky-300">Canal Oficial</p>
+                        </div>
+                    </a>
+
+                    <a href="https://chat.whatsapp.com/K6ehZS21yglBe5qkQFuox9" target="_blank" rel="noopener noreferrer" class="bg-[#060b16]/85 hover:bg-[#E5B84B]/10 border border-[#E5B84B]/30 rounded-xl p-3 flex items-center space-x-2.5 transition">
+                        <span class="w-8 h-8 rounded-full bg-[#E5B84B]/20 text-[#F3D078] flex items-center justify-center text-sm shrink-0">👥</span>
+                        <div>
+                            <p class="text-xs font-bold text-white">Comunidad</p>
+                            <p class="text-[10px] text-[#F3D078]">Grupo WhatsApp</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
             <!-- Listado Transparente de Invitados -->
             <div class="aero-glass rounded-2xl p-4 space-y-3">
-                <h3 class="font-bold text-sm text-[#F3D078]">📋 Mis Invitados Directos</h3>
+                <h3 class="font-bold text-sm text-[#F3D078]">📋 Miembros de Mi Tripulación</h3>
                 <div id="referrals-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                    <p class="text-xs text-slate-400 text-center py-2">Cargando invitados...</p>
+                    <p class="text-xs text-slate-400 text-center py-2">Cargando tripulación...</p>
                 </div>
             </div>
         </main>
-
-        <!-- PESTAÑA 4: FINANZAS (CARGA + RETIRO + HISTORIAL) -->
-        <main id="view-finanzas" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
-            
-            <!-- MÓDULO DE CARGA DE SALDO -->
-            <div class="aero-glass rounded-2xl p-4 space-y-3">
-                <h3 class="font-bold text-sm text-[#F3D078]">💳 Carga de Saldo (Depósito)</h3>
-                <p class="text-xs text-slate-400">1. Transferí tu depósito al CVU oficial de AERION:</p>
-                
-                <div class="bg-[#060b16]/80 border border-white/10 p-3 rounded-xl flex justify-between items-center">
-                    <span id="cvu-text" class="text-xs font-mono text-slate-200">0000267900000002996367</span>
-                    <button onclick="copiarCvu()" class="bg-slate-800 hover:bg-slate-700 text-[#F3D078] text-xs font-bold px-3 py-1.5 rounded-lg transition">Copiar CVU</button>
-                </div>
-
-                <p class="text-xs text-slate-400 pt-1">2. Ingresá el monto transferido y enviá tu comprobante:</p>
-                <div class="space-y-2.5">
-                    <div class="relative">
-                        <span class="absolute left-3.5 top-2.5 text-xs text-slate-400 font-bold">$</span>
-                        <input type="number" id="deposit-amount" placeholder="Ej: 10000 (Mínimo: $10.000 ARS)" class="w-full aero-input rounded-xl pl-7 pr-3 py-2.5 text-xs font-mono">
-                    </div>
-                    <button onclick="notificarDepositoWhatsApp()" class="w-full gold-gradient text-slate-950 font-bold py-2.5 rounded-xl text-xs transition shadow flex items-center justify-center space-x-1">
-                        <span>📲 Notificar Depósito y Enviar Comprobante</span>
-                    </button>
-                </div>
-
-                <div class="bg-[#E5B84B]/10 border border-[#E5B84B]/30 rounded-xl p-2 text-center mt-1">
-                    <p class="text-[11px] text-[#F3D078] font-semibold">⚠️ Mínimo de carga permitido: $10.000 ARS</p>
-                </div>
-            </div>
-
-            <!-- SOLICITUD DE RETIRO -->
-            <div class="aero-glass rounded-2xl p-4 space-y-3">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-sm text-[#F3D078]">💸 Solicitud de Retiro</h3>
-                    <span class="text-[10px] bg-[#060b16]/80 text-slate-400 px-2.5 py-0.5 rounded-full border border-white/10">Lunes a Lunes</span>
-                </div>
-                <p class="text-xs text-slate-400">Mínimo: <strong class="text-white">$3.500 ARS</strong> — Máximo: <strong class="text-white">$5.000.000 ARS</strong></p>
-                <div class="space-y-2.5">
-                    <div class="relative">
-                        <span class="absolute left-3.5 top-2.5 text-xs text-slate-400 font-bold">$</span>
-                        <input type="number" id="withdraw-amount" placeholder="Ej: 15000" class="w-full aero-input rounded-xl pl-7 pr-3 py-2.5 text-xs font-mono">
-                    </div>
-                    <button onclick="procesarSolicitudRetiro()" class="w-full gold-gradient text-slate-950 font-bold py-2.5 rounded-xl text-xs transition shadow">Solicitar Retiro</button>
-                </div>
-            </div>
-
-            <!-- HISTORIAL UNIFICADO DE MOVIMIENTOS -->
-            <div class="aero-glass rounded-2xl p-4 space-y-3">
-                <h3 class="font-bold text-sm text-[#F3D078]">📜 Historial de Movimientos</h3>
-                <div id="history-list" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
-            </div>
-        </main>
-
-        <!-- PESTAÑA 5: PERFIL -->
+        <!-- PESTAÑA 4: MI PERFIL (CON HISTORIAL INTEGRADO) -->
         <main id="view-perfil" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
             <div class="aero-glass rounded-2xl p-4 space-y-4">
                 <div class="flex items-center justify-between border-b border-white/10 pb-3">
@@ -428,17 +447,27 @@
                     </div>
                     <button onclick="guardarDatosBancarios()" class="w-full gold-gradient text-slate-950 font-bold py-2.5 rounded-xl text-xs transition shadow">Guardar Datos de Cobro</button>
                 </div>
+            </div>
 
-                <div class="pt-4 border-t border-white/10">
-                    <button onclick="cerrarSesion()" class="w-full bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 font-semibold py-2.5 rounded-xl text-xs border border-rose-500/30 transition flex items-center justify-center space-x-2">
-                        <span>🚪 Cerrar Sesión</span>
-                    </button>
+            <!-- HISTORIAL UNIFICADO DE MOVIMIENTOS -->
+            <div class="aero-glass rounded-2xl p-4 space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-sm text-[#F3D078]">📜 Historial de Movimientos</h3>
+                    <span class="text-[10px] text-slate-400">Depósitos, Retiros y Bonos</span>
                 </div>
+                <div id="history-list" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+            </div>
+
+            <!-- Cerrar Sesión -->
+            <div class="pt-1">
+                <button onclick="cerrarSesion()" class="w-full bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 font-semibold py-3 rounded-2xl text-xs border border-rose-500/30 transition flex items-center justify-center space-x-2">
+                    <span>🚪 Cerrar Sesión</span>
+                </button>
             </div>
         </main>
 
-        <!-- BARRA NAVEGACIÓN INFERIOR FLOTANTE -->
-        <nav class="fixed bottom-0 left-0 right-0 bg-[#060b16]/90 backdrop-blur-xl border-t border-[#E5B84B]/20 flex justify-around py-2.5 z-10">
+        <!-- BARRA NAVEGACIÓN INFERIOR FLOTANTE (4 PESTAÑAS) -->
+        <nav class="fixed bottom-0 left-0 right-0 bg-[#060b16]/95 backdrop-blur-xl border-t border-[#E5B84B]/25 flex justify-around py-2.5 z-20">
             <button onclick="navTo('inicio')" id="nav-btn-inicio" class="text-[#F3D078] font-semibold text-xs flex flex-col items-center space-y-1">
                 <span class="text-base">✈️</span>
                 <span>Inicio</span>
@@ -447,22 +476,111 @@
                 <span class="text-base">📦</span>
                 <span>Mi Flota</span>
             </button>
-            <button onclick="navTo('equipo')" id="nav-btn-equipo" class="text-slate-400 text-xs flex flex-col items-center space-y-1">
-                <span class="text-base">⭐</span>
-                <span>Invitados</span>
-            </button>
-            <button onclick="navTo('finanzas')" id="nav-btn-finanzas" class="text-slate-400 text-xs flex flex-col items-center space-y-1">
-                <span class="text-base">💰</span>
-                <span>Finanzas</span>
+            <button onclick="navTo('tripulacion')" id="nav-btn-tripulacion" class="text-slate-400 text-xs flex flex-col items-center space-y-1">
+                <span class="text-base">🧑‍✈️</span>
+                <span>Mi Tripulación</span>
             </button>
             <button onclick="navTo('perfil')" id="nav-btn-perfil" class="text-slate-400 text-xs flex flex-col items-center space-y-1">
                 <span class="text-base">👤</span>
-                <span>Perfil</span>
+                <span>Mi Perfil</span>
             </button>
         </nav>
     </div>
 
-    <!-- SCRIPT CON LOGICA FIRESTORE CONECTADO A AERION-F0CE9 -->
+    <!-- ===================================================================== -->
+    <!-- CUADROS MODALES PERSONALIZADOS AERION (DEPÓSITO, RETIRO Y CARTELES)  -->
+    <!-- ===================================================================== -->
+
+    <!-- 1. MODAL DE DEPÓSITO -->
+    <div id="modal-deposito" class="fixed inset-0 z-[9000] hidden items-center justify-center bg-black/80 backdrop-blur-sm px-4">
+        <div class="w-full max-w-sm rounded-3xl border border-[#E5B84B]/45 bg-[#0a1326] p-5 shadow-[0_0_40px_rgba(229,184,75,0.2)] animate-modal space-y-4">
+            <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-base">💳</span>
+                    <h3 class="text-sm font-extrabold tracking-wider text-[#F3D078] uppercase">Depositar Saldo</h3>
+                </div>
+                <button onclick="cerrarModal('modal-deposito')" class="text-slate-400 hover:text-white text-lg font-bold px-2">&times;</button>
+            </div>
+
+            <div class="space-y-2">
+                <p class="text-xs text-slate-300">1. Transferí al CVU oficial de <strong class="text-[#F3D078]">AERION</strong>:</p>
+                <div class="bg-[#050914] border border-[#E5B84B]/30 p-3 rounded-xl flex justify-between items-center">
+                    <span id="cvu-text" class="text-xs font-mono font-bold text-white select-all">0000267900000003036268</span>
+                    <button onclick="copiarCvu()" class="gold-gradient text-slate-950 text-[11px] font-extrabold px-3 py-1.5 rounded-lg transition shrink-0 ml-2">Copiar</button>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <p class="text-xs text-slate-300">2. Ingresá el monto transferido (Mínimo $10.000 ARS):</p>
+                <div class="relative">
+                    <span class="absolute left-3.5 top-2.5 text-xs text-[#F3D078] font-bold">$</span>
+                    <input type="number" id="deposit-amount" placeholder="Ej: 10000" class="w-full aero-input rounded-xl pl-7 pr-3 py-2.5 text-sm font-mono">
+                </div>
+            </div>
+
+            <div class="bg-[#E5B84B]/10 border border-[#E5B84B]/25 rounded-xl p-2.5 text-[11px] text-slate-300 leading-relaxed">
+                Una vez acreditado tu depósito, podés adquirir tus aeronaves VIP en Inicio para habilitar retiros diarios.
+            </div>
+
+            <div class="flex space-x-2.5 pt-1">
+                <button onclick="cerrarModal('modal-deposito')" class="w-1/3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 rounded-xl text-xs transition">Cancelar</button>
+                <button onclick="notificarDepositoWhatsApp()" class="w-2/3 gold-gradient text-slate-950 font-extrabold py-2.5 rounded-xl text-xs transition shadow">📲 Enviar Comprobante</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. MODAL DE RETIRO -->
+    <div id="modal-retiro" class="fixed inset-0 z-[9000] hidden items-center justify-center bg-black/80 backdrop-blur-sm px-4">
+        <div class="w-full max-w-sm rounded-3xl border border-emerald-400/40 bg-[#0a1326] p-5 shadow-[0_0_40px_rgba(16,185,129,0.18)] animate-modal space-y-4">
+            <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-base">💸</span>
+                    <h3 class="text-sm font-extrabold tracking-wider text-emerald-300 uppercase">Solicitar Retiro</h3>
+                </div>
+                <button onclick="cerrarModal('modal-retiro')" class="text-slate-400 hover:text-white text-lg font-bold px-2">&times;</button>
+            </div>
+
+            <div class="bg-[#050914] border border-white/10 rounded-xl p-3 flex justify-between items-center text-xs">
+                <span class="text-slate-400">Saldo Disponible:</span>
+                <span class="font-mono font-bold text-[#F3D078]">ARS <span id="modal-withdraw-balance">0</span></span>
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="text-xs text-slate-300 block">Monto a retirar (Mín. $3.500 — Máx. $5.000.000):</label>
+                <div class="relative">
+                    <span class="absolute left-3.5 top-2.5 text-xs text-emerald-400 font-bold">$</span>
+                    <input type="number" id="withdraw-amount" placeholder="Ej: 15000" class="w-full aero-input rounded-xl pl-7 pr-3 py-2.5 text-sm font-mono">
+                </div>
+            </div>
+
+            <div class="bg-emerald-500/10 border border-emerald-400/25 rounded-xl p-2.5 text-[11px] text-slate-300 leading-relaxed">
+                ✔️ Requisito: Tener tus datos bancarios guardados en Perfil y al menos <strong>1 aeronave VIP activa</strong> adquirida mediante depósito.
+            </div>
+
+            <div class="flex space-x-2.5 pt-1">
+                <button onclick="cerrarModal('modal-retiro')" class="w-1/3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 rounded-xl text-xs transition">Cancelar</button>
+                <button onclick="procesarSolicitudRetiro()" class="w-2/3 bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-extrabold py-2.5 rounded-xl text-xs transition shadow">Confirmar Retiro</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. MODAL GENERAL DE NOTIFICACIONES AERION -->
+    <div id="aerion-alert-modal" class="fixed inset-0 z-[9999] hidden items-center justify-center bg-black/80 backdrop-blur-sm px-4">
+        <div class="w-full max-w-sm rounded-3xl border border-[#E5B84B]/50 bg-[#0b1528]/95 p-6 text-center shadow-[0_0_45px_rgba(229,184,75,0.22)] animate-modal">
+            <div id="aerion-alert-icon" class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full border border-[#E5B84B]/50 bg-[#E5B84B]/15 text-xl">
+                ✈️
+            </div>
+            <h3 id="aerion-alert-title" class="text-xs font-extrabold tracking-[0.22em] text-[#F3D078] uppercase">
+                AERION AVIATION
+            </h3>
+            <p id="aerion-alert-msg" class="mt-3 text-xs sm:text-sm leading-relaxed text-slate-200"></p>
+            <button onclick="cerrarAerionAlert()" class="mt-6 w-full rounded-full gold-gradient py-3 text-xs font-extrabold tracking-widest text-slate-950 uppercase shadow-lg transition active:scale-95">
+                Entendido
+            </button>
+        </div>
+    </div>
+
+    <!-- SCRIPT CON LÓGICA FIRESTORE: MÚLTIPLES PLANES DISTINTOS SIN REPETIR ACTIVOS -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBdmXanaJt_k2YR4w_yyRqCi3Sdd7MgZNg",
@@ -477,9 +595,51 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        const DIA_MS = 24 * 60 * 60 * 1000;
         let mode = 'register';
         let currentUserPhone = null;
         let currentUserData = null;
+        let sincronizandoTabla = false;
+
+        // Sistema de Carteles Personalizados Aerion
+        function mostrarCartel(mensaje, titulo = "AERION AVIATION", icono = "✈️") {
+            const modal = document.getElementById('aerion-alert-modal');
+            document.getElementById('aerion-alert-title').innerText = titulo;
+            document.getElementById('aerion-alert-msg').innerText = mensaje;
+            document.getElementById('aerion-alert-icon').innerText = icono;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function cerrarAerionAlert() {
+            const modal = document.getElementById('aerion-alert-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        window.alert = function(msg) {
+            mostrarCartel(msg);
+        };
+
+        function abrirModalDeposito() {
+            const modal = document.getElementById('modal-deposito');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function abrirModalRetiro() {
+            const bal = currentUserData && currentUserData.balance ? currentUserData.balance.toLocaleString() : "0";
+            document.getElementById('modal-withdraw-balance').innerText = bal;
+            const modal = document.getElementById('modal-retiro');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function cerrarModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
 
         function togglePasswordVisibility(inputId) {
             const input = document.getElementById(inputId);
@@ -506,7 +666,17 @@
             }
         }
 
-        // Genera un código único con formato A + 6 dígitos al azar (ej. A482910)
+        // Busca si ESE modelo específico ya está activo (days_left > 0) en la tabla del usuario
+        function buscarPlanActivoPorNombre(nombrePlan) {
+            if (!currentUserData || !currentUserData.investments || currentUserData.investments.length === 0) {
+                return null;
+            }
+            return currentUserData.investments.find(inv => {
+                const dias = inv.days_left !== undefined ? inv.days_left : 30;
+                return inv.nombre === nombrePlan && dias > 0 && inv.status !== 'completed';
+            }) || null;
+        }
+
         async function generarCodigoUnico() {
             let codigoGenerado = "";
             let existe = true;
@@ -523,7 +693,7 @@
             event.preventDefault();
             const rawPhone = document.getElementById('phone').value.replace(/\D/g, '');
             if (rawPhone.length < 8) {
-                alert("Ingresá un número de teléfono móvil válido.");
+                mostrarCartel("Ingresá un número de teléfono móvil válido.", "DATOS INCOMPLETOS", "⚠️");
                 return;
             }
             const phone = '+549' + rawPhone;
@@ -536,11 +706,11 @@
 
             if (mode === 'register') {
                 if (password !== confirmPassword) {
-                    alert("Las contraseñas no coinciden. Verificá e intentá nuevamente.");
+                    mostrarCartel("Las contraseñas no coinciden. Verificá e intentá nuevamente.", "ERROR DE CONTRASEÑA", "🔐");
                     return;
                 }
                 if (doc.exists) {
-                    alert("Este número ya se encuentra registrado. Iniciá sesión.");
+                    mostrarCartel("Este número ya se encuentra registrado. Iniciá sesión con tu contraseña.", "CUENTA EXISTENTE", "ℹ️");
                     return;
                 }
 
@@ -572,23 +742,26 @@
                 localStorage.setItem('aerion_user_phone', phone);
                 submitBtn.disabled = false;
                 submitBtn.innerText = "Crear cuenta";
-                alert(`¡Bienvenido a AERION! Tu código de socio único es ${uniqueCode}. Completá tus datos en Perfil para recibir $3.500 ARS.`);
+                
                 escucharUsuario(phone);
+                mostrarCartel(`¡Bienvenido a bordo de AERION! Tu código de tripulación único es ${uniqueCode}. Completá tus datos en Mi Perfil para recibir $3.500 ARS.`, "¡REGISTRO EXITOSO!", "🛫");
             } else {
                 if (!doc.exists || doc.data().password !== password) {
-                    alert("Teléfono o contraseña incorrectos.");
+                    mostrarCartel("Teléfono o contraseña incorrectos. Verificá tus datos.", "ACCESO DENEGADO", "❌");
                     return;
                 }
                 localStorage.setItem('aerion_user_phone', phone);
                 escucharUsuario(phone);
+                mostrarCartel("¡Qué bueno verte de nuevo! Reclamá tu Bono Diario de Vuelo y revisá el rendimiento de tu flota.", "BIENVENIDO A AERION", "✈️");
             }
         }
 
         function escucharUsuario(phone) {
             currentUserPhone = phone;
-            db.collection('users').doc(phone).onSnapshot(doc => {
+            db.collection('users').doc(phone).onSnapshot(async doc => {
                 if (doc.exists) {
                     currentUserData = doc.data();
+                    await sincronizarCiclosEnTabla();
                     actualizarInterfazUI();
                     contarReferidosYAcreditarComision();
                 }
@@ -596,6 +769,86 @@
 
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app-screen').classList.remove('hidden');
+        }
+
+        // Sincroniza los relojes y pagos diarios de TODAS las aeronaves activas en Firestore
+        async function sincronizarCiclosEnTabla() {
+            if (!currentUserData || !currentUserData.investments || currentUserData.investments.length === 0 || sincronizandoTabla) {
+                return;
+            }
+
+            const ahora = Date.now();
+            let huboCambios = false;
+            let saldoExtra = 0;
+            const historialActualizado = [...(currentUserData.history || [])];
+            const inversionesActualizadas = currentUserData.investments.map(inv => ({ ...inv }));
+
+            for (let i = 0; i < inversionesActualizadas.length; i++) {
+                const inv = inversionesActualizadas[i];
+
+                if (!inv.created_timestamp) {
+                    inv.created_timestamp = ahora;
+                    huboCambios = true;
+                }
+                if (!inv.last_payout_timestamp) {
+                    inv.last_payout_timestamp = inv.created_timestamp;
+                    huboCambios = true;
+                }
+                if (!inv.next_payout_timestamp) {
+                    inv.next_payout_timestamp = inv.last_payout_timestamp + DIA_MS;
+                    huboCambios = true;
+                }
+                if (inv.days_left === undefined) {
+                    inv.days_left = 30;
+                    huboCambios = true;
+                }
+                if (!inv.status) {
+                    inv.status = inv.days_left > 0 ? 'active' : 'completed';
+                    huboCambios = true;
+                }
+
+                if (inv.days_left > 0 && ahora >= inv.next_payout_timestamp) {
+                    const transcurrido = ahora - inv.last_payout_timestamp;
+                    const ciclosCumplidos = Math.min(inv.days_left, Math.floor(transcurrido / DIA_MS));
+
+                    if (ciclosCumplidos >= 1) {
+                        const gananciaAcumulada = ciclosCumplidos * inv.daily;
+                        saldoExtra += gananciaAcumulada;
+
+                        inv.days_left -= ciclosCumplidos;
+                        inv.last_payout_timestamp += ciclosCumplidos * DIA_MS;
+                        inv.next_payout_timestamp = inv.last_payout_timestamp + DIA_MS;
+                        inv.status = inv.days_left > 0 ? 'active' : 'completed';
+                        huboCambios = true;
+
+                        const etiquetaDias = ciclosCumplidos > 1 ? ` (${ciclosCumplidos} días)` : '';
+                        historialActualizado.unshift({
+                            title: `Rendimiento Diario${etiquetaDias}: ${inv.nombre}`,
+                            amount: gananciaAcumulada,
+                            type: "earning",
+                            date: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                        });
+                    }
+                }
+            }
+
+            if (huboCambios) {
+                const sigueActivoAlguno = inversionesActualizadas.some(inv => inv.days_left > 0 && inv.status !== 'completed');
+                sincronizandoTabla = true;
+                try {
+                    const updateData = {
+                        investments: inversionesActualizadas,
+                        has_active_product: sigueActivoAlguno,
+                        history: historialActualizado
+                    };
+                    if (saldoExtra > 0) {
+                        updateData.balance = firebase.firestore.FieldValue.increment(saldoExtra);
+                    }
+                    await db.collection('users').doc(currentUserPhone).update(updateData);
+                } finally {
+                    sincronizandoTabla = false;
+                }
+            }
         }
 
         function actualizarInterfazUI() {
@@ -617,6 +870,24 @@
                 document.getElementById('profile-bonus-card').classList.remove('hidden');
             }
 
+            // Actualizar individualmente cada botón del catálogo:
+            // Solo se marca "En curso" el modelo específico que ya esté activo
+            const investBtns = document.querySelectorAll('.btn-invest');
+            investBtns.forEach(btn => {
+                const nombreModelo = btn.getAttribute('data-plan');
+                const yaActivo = buscarPlanActivoPorNombre(nombreModelo);
+
+                if (yaActivo) {
+                    btn.innerText = "En curso";
+                    btn.classList.remove('gold-gradient', 'text-slate-950');
+                    btn.classList.add('bg-slate-800', 'text-slate-400', 'border', 'border-white/10');
+                } else {
+                    btn.innerText = "Invertir";
+                    btn.classList.add('gold-gradient', 'text-slate-950');
+                    btn.classList.remove('bg-slate-800', 'text-slate-400', 'border', 'border-white/10');
+                }
+            });
+
             renderHistorial();
             renderProductosActivos();
             actualizarTemporizadoresEnVivo();
@@ -627,17 +898,17 @@
             const monto = parseFloat(depositInput.value);
 
             if (!monto || monto < 10000) {
-                alert("El monto mínimo de depósito permitido es de $10.000 ARS.");
+                mostrarCartel("El monto mínimo de depósito permitido es de $10.000 ARS.", "MONTO INSUFICIENTE", "⚠️");
                 return;
             }
 
             const nuevoHistorial = currentUserData.history || [];
             nuevoHistorial.unshift({
-                title: "Carga de Saldo",
+                title: "Carga de Saldo (Depósito)",
                 amount: monto,
                 type: "deposit",
                 status: "pending",
-                date: new Date().toLocaleTimeString()
+                date: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
             });
 
             const nuevosDepositos = currentUserData.deposits || [];
@@ -649,10 +920,12 @@
             });
 
             depositInput.value = '';
+            cerrarModal('modal-deposito');
 
-            const mensaje = `Hola AERION ✈️, quiero notificar mi carga de $${monto.toLocaleString()} ARS para mi cuenta registrada ${currentUserPhone}. Adjunto comprobante de transferencia.`;
-            const waUrl = `https://wa.me/message/PTDSIWHXYKYSO1?text=${encodeURIComponent(mensaje)}`;
+            const mensaje = `Hola AERION ✈️, quiero notificar mi depósito de $${monto.toLocaleString()} ARS para mi cuenta registrada ${currentUserPhone}. Adjunto comprobante de transferencia.`;
+            const waUrl = `https://wa.me/5493884554597?text=${encodeURIComponent(mensaje)}`;
             window.open(waUrl, '_blank');
+            mostrarCartel("Tu solicitud de depósito quedó registrada. Enviá el comprobante por WhatsApp para su acreditación.", "DEPÓSITO NOTIFICADO", "💳");
         }
 
         async function contarReferidosYAcreditarComision() {
@@ -668,7 +941,7 @@
             const historialActualizado = [...(currentUserData.history || [])];
 
             if (snapshot.empty) {
-                document.getElementById('referrals-list').innerHTML = `<p class="text-xs text-slate-400 text-center py-2">Aún no tienes invitados registrados con tu código.</p>`;
+                document.getElementById('referrals-list').innerHTML = `<p class="text-xs text-slate-400 text-center py-2">Aún no tienes miembros registrados en tu tripulación.</p>`;
                 document.getElementById('count-total-refs').innerText = "0";
                 document.getElementById('count-active-refs').innerText = "0";
                 return;
@@ -695,16 +968,16 @@
                         referidosProcesados.push(refPhone);
 
                         historialActualizado.unshift({
-                            title: `Comisión 20% (${nombrePlan})`,
+                            title: `Comisión Tripulación 20% (${nombrePlan})`,
                             amount: comision,
                             type: "referral_bonus",
-                            date: new Date().toLocaleTimeString()
+                            date: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
                         });
                     }
                 }
 
-                const telOculto = data.phone ? data.phone.slice(0, 6) + '***' + data.phone.slice(-3) : 'Inversor';
-                const planInfo = (data.investments && data.investments.length > 0) ? data.investments[0].nombre : 'Sin plan activo';
+                const telOculto = data.phone ? data.phone.slice(0, 6) + '***' + data.phone.slice(-3) : 'Pasajero';
+                const planInfo = (data.investments && data.investments.length > 0) ? data.investments[0].nombre : 'Sin aeronave activa';
 
                 htmlList += `
                     <div class="flex justify-between items-center bg-[#060b16]/75 border border-white/5 p-2.5 rounded-xl text-xs">
@@ -713,7 +986,7 @@
                             <p class="text-[10px] text-slate-400">${planInfo}</p>
                         </div>
                         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${esActivo ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30' : 'bg-[#E5B84B]/20 text-[#F3D078] border border-[#E5B84B]/30'}">
-                            ${esActivo ? '🟢 Plan Activo (20%)' : '🟡 Pendiente'}
+                            ${esActivo ? '🟢 Activo (20%)' : '🟡 En espera'}
                         </span>
                     </div>
                 `;
@@ -729,7 +1002,7 @@
                     processed_commissions: referidosProcesados,
                     history: historialActualizado
                 });
-                alert(`¡Felicitaciones! Recibiste +$${comisionesPendientesASumar.toLocaleString()} ARS (20%) por la inversión de un invitado.`);
+                mostrarCartel(`¡Recibiste +$${comisionesPendientesASumar.toLocaleString()} ARS (20%) por la activación de un miembro de tu tripulación!`, "¡COMISIÓN ACREDITADA!", "💰");
             }
         }
 
@@ -740,65 +1013,61 @@
                 return;
             }
 
-            container.innerHTML = currentUserData.investments.map((p, index) => {
+            // Mantenemos el índice original de Firestore en cada elemento para sincronizar su reloj exacto
+            const listaConIndices = currentUserData.investments
+                .map((p, originalIndex) => ({ ...p, originalIndex }))
+                .reverse();
+
+            container.innerHTML = listaConIndices.map(p => {
                 const diasRestantes = p.days_left !== undefined ? p.days_left : 30;
+                const estaFinalizado = diasRestantes <= 0 || p.status === 'completed';
+
                 return `
-                    <div class="aero-glass rounded-2xl p-4 space-y-2">
+                    <div class="aero-glass rounded-2xl p-4 space-y-2 ${estaFinalizado ? 'opacity-70' : 'border border-[#E5B84B]/40'}">
                         <div class="flex justify-between items-center">
                             <h4 class="font-bold text-sm text-[#F3D078]">${p.nombre}</h4>
-                            <span class="text-xs bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 px-2.5 py-0.5 rounded-full font-semibold">Días restantes: ${diasRestantes} / 30</span>
+                            ${estaFinalizado
+                                ? `<span class="text-xs bg-slate-700/60 border border-white/10 text-slate-300 px-2.5 py-0.5 rounded-full font-semibold">Ciclo Finalizado</span>`
+                                : `<span class="text-xs bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 px-2.5 py-0.5 rounded-full font-semibold">Días restantes: ${diasRestantes} / 30</span>`
+                            }
                         </div>
                         <div class="flex justify-between items-center text-xs text-slate-400">
                             <span>Ganancia diaria: <strong class="text-white font-mono">ARS ${p.daily.toLocaleString()}</strong></span>
                             <span>Adquirido: ${p.date}</span>
                         </div>
-                        <div class="bg-[#060b16]/80 p-2.5 rounded-xl flex justify-between items-center mt-2 border border-white/10">
-                            <span class="text-[11px] text-slate-200">Próxima acreditación en:</span>
-                            <span id="timer-${index}" class="text-xs font-mono font-bold text-[#F3D078] bg-[#E5B84B]/10 px-2.5 py-1 rounded-lg border border-[#E5B84B]/30">Calculando...</span>
-                        </div>
+                        ${estaFinalizado
+                            ? `<div class="bg-[#060b16]/80 p-2.5 rounded-xl text-center mt-2 border border-white/10 text-[11px] text-emerald-300 font-semibold">✔️ Contrato completado (30/30 días acreditados). Ya podés volver a adquirir este modelo en Inicio.</div>`
+                            : `<div class="bg-[#060b16]/80 p-2.5 rounded-xl flex justify-between items-center mt-2 border border-white/10">
+                                <span class="text-[11px] text-slate-200">Próxima acreditación en:</span>
+                                <span id="timer-plan-${p.originalIndex}" class="text-xs font-mono font-bold text-[#F3D078] bg-[#E5B84B]/10 px-2.5 py-1 rounded-lg border border-[#E5B84B]/30">Sincronizando...</span>
+                               </div>`
+                        }
                     </div>
                 `;
             }).join('');
         }
 
+        // Actualiza en vivo el reloj de CADA aeronave activa leyendo su next_payout_timestamp de Firestore
         function actualizarTemporizadoresEnVivo() {
-            if (!currentUserData || !currentUserData.investments) return;
+            if (!currentUserData || !currentUserData.investments || currentUserData.investments.length === 0) return;
 
-            const ahora = new Date().getTime();
-            let requierGuardado = false;
+            const ahora = Date.now();
+            let requiereSincronizar = false;
 
-            for (let i = 0; i < currentUserData.investments.length; i++) {
-                const inv = currentUserData.investments[i];
-                const timerEl = document.getElementById(`timer-${i}`);
-                
-                if (!inv.created_timestamp) {
-                    inv.created_timestamp = ahora;
-                    inv.last_payout_timestamp = ahora;
-                    requierGuardado = true;
-                }
+            currentUserData.investments.forEach((inv, index) => {
+                const dias = inv.days_left !== undefined ? inv.days_left : 30;
+                if (dias <= 0 || inv.status === 'completed') return;
 
-                const startTime = inv.last_payout_timestamp || inv.created_timestamp;
-                const nextPayout = startTime + (24 * 60 * 60 * 1000);
-                const diff = nextPayout - ahora;
+                const targetTimestamp = inv.next_payout_timestamp || ((inv.last_payout_timestamp || inv.created_timestamp || ahora) + DIA_MS);
+                const diff = targetTimestamp - ahora;
 
                 if (diff <= 0) {
-                    inv.last_payout_timestamp = ahora;
-                    inv.days_left = (inv.days_left !== undefined ? inv.days_left : 30) - 1;
+                    requiereSincronizar = true;
+                    return;
+                }
 
-                    currentUserData.balance = (currentUserData.balance || 0) + inv.daily;
-                    currentUserData.history.unshift({
-                        title: `Rendimiento Diario: ${inv.nombre}`,
-                        amount: inv.daily,
-                        type: "earning",
-                        date: new Date().toLocaleTimeString()
-                    });
-
-                    db.collection('users').doc(currentUserPhone).update({
-                        balance: currentUserData.balance,
-                        investments: currentUserData.investments,
-                        history: currentUserData.history
-                    });
-                } else if (timerEl) {
+                const timerEl = document.getElementById(`timer-plan-${index}`);
+                if (timerEl) {
                     const h = Math.floor(diff / (1000 * 60 * 60));
                     const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                     const s = Math.floor((diff % (1000 * 60)) / 1000);
@@ -809,19 +1078,17 @@
 
                     timerEl.innerText = `${hh}h ${mm}m ${ss}s`;
                 }
-            }
+            });
 
-            if (requierGuardado) {
-                db.collection('users').doc(currentUserPhone).update({
-                    investments: currentUserData.investments
-                });
+            if (requiereSincronizar) {
+                sincronizarCiclosEnTabla();
             }
         }
 
         function renderHistorial() {
             const container = document.getElementById('history-list');
             if (!currentUserData || !currentUserData.history || currentUserData.history.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-2">Sin movimientos registrados aún.</p>`;
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-3">Sin movimientos registrados aún.</p>`;
                 return;
             }
             
@@ -838,33 +1105,49 @@
                 return `
                     <div class="flex justify-between items-center bg-[#060b16]/75 border border-white/5 p-2.5 rounded-xl text-xs">
                         <div>
-                            <p class="font-semibold text-white flex items-center">${item.title} ${badgeEstado}</p>
-                            <p class="text-[10px] text-slate-400">${item.date}</p>
+                            <p class="font-semibold text-white flex items-center flex-wrap">${item.title} ${badgeEstado}</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5">${item.date}</p>
                         </div>
-                        <span class="${item.amount < 0 ? 'text-rose-400' : 'text-emerald-400'} font-bold font-mono">${item.amount < 0 ? '' : '+'}${item.amount.toLocaleString()} ARS</span>
+                        <span class="${item.amount < 0 ? 'text-rose-400' : 'text-emerald-400'} font-bold font-mono shrink-0 ml-2">${item.amount < 0 ? '' : '+'}${item.amount.toLocaleString()} ARS</span>
                     </div>
                 `;
             }).join('');
         }
 
         async function comprarProducto(nombre, precio, daily) {
-            if (currentUserData.balance < precio) {
-                alert("Saldo insuficiente. Ve a Finanzas para cargar saldo (mínimo $10.000 ARS).");
+            // Permite comprar distintos planes, pero bloquea repetir el MISMO modelo si aún no finalizó
+            const mismoPlanEnCurso = buscarPlanActivoPorNombre(nombre);
+            if (mismoPlanEnCurso) {
+                mostrarCartel(`Ya tenés activo el modelo ${nombre} (${mismoPlanEnCurso.days_left} días restantes). Podrás volver a adquirir este mismo modelo cuando finalice su ciclo de 30 días, o elegir otra aeronave diferente de la flota.`, "MODELO EN CURSO", "⏳");
                 return;
             }
 
-            const ahora = new Date().getTime();
+            if (currentUserData.balance < precio) {
+                mostrarCartel("Saldo insuficiente para adquirir esta aeronave. Realizá un depósito desde el botón Depositar en Inicio (mínimo $10.000 ARS).", "SALDO INSUFICIENTE", "💳");
+                return;
+            }
+
+            const ahora = Date.now();
+            const proximoPago = ahora + DIA_MS;
+
             const nuevoHistorial = currentUserData.history || [];
-            nuevoHistorial.unshift({ title: "Inversión: " + nombre, amount: -precio, type: "purchase", date: new Date().toLocaleTimeString() });
+            nuevoHistorial.unshift({
+                title: "Inversión: " + nombre,
+                amount: -precio,
+                type: "purchase",
+                date: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            });
 
             const nuevasInversiones = currentUserData.investments || [];
             nuevasInversiones.push({
                 nombre: nombre,
                 precio: precio,
                 daily: daily,
+                status: "active",
                 date: new Date().toLocaleDateString(),
                 created_timestamp: ahora,
                 last_payout_timestamp: ahora,
+                next_payout_timestamp: proximoPago,
                 days_left: 30
             });
 
@@ -875,24 +1158,28 @@
                 investments: nuevasInversiones
             });
 
-            alert(`¡Has adquirido ${nombre}! Tu inversión comenzó a producir ingresos diarios durante 30 días.`);
+            mostrarCartel(`¡Has adquirido ${nombre}! Su reloj regresivo de 30 días quedó sincronizado en tu cuenta y podés seguirlo desde Mi Flota.`, "¡AERONAVE ACTIVADA!", "🛩️");
         }
 
         async function reclamarBonoDiario() {
-            const ahora = new Date().getTime();
-            const tiempoEspera = 24 * 60 * 60 * 1000;
+            const ahora = Date.now();
 
-            if (currentUserData.last_checkin_timestamp && (ahora - currentUserData.last_checkin_timestamp) < tiempoEspera) {
-                const tiempoRestanteMs = tiempoEspera - (ahora - currentUserData.last_checkin_timestamp);
+            if (currentUserData.last_checkin_timestamp && (ahora - currentUserData.last_checkin_timestamp) < DIA_MS) {
+                const tiempoRestanteMs = DIA_MS - (ahora - currentUserData.last_checkin_timestamp);
                 const horasRestantes = Math.floor(tiempoRestanteMs / (1000 * 60 * 60));
                 const minutosRestantes = Math.floor((tiempoRestanteMs % (1000 * 60 * 60)) / (1000 * 60));
                 
-                alert(`Debés esperar 24 hs entre cada reclamo. Volvé en ${horasRestantes}h y ${minutosRestantes}m.`);
+                mostrarCartel(`Debés esperar 24 hs entre cada reclamo. Volvé en ${horasRestantes}h y ${minutosRestantes}m.`, "BONO DIARIO EN ESPERA", "⏳");
                 return;
             }
 
             const nuevoHistorial = currentUserData.history || [];
-            nuevoHistorial.unshift({ title: "Bono Diario de Vuelo", amount: 400, type: "bonus", date: new Date().toLocaleTimeString() });
+            nuevoHistorial.unshift({
+                title: "Bono Diario de Vuelo",
+                amount: 400,
+                type: "bonus",
+                date: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            });
 
             await db.collection('users').doc(currentUserPhone).update({
                 balance: firebase.firestore.FieldValue.increment(400),
@@ -900,49 +1187,50 @@
                 history: nuevoHistorial
             });
 
-            alert("¡Bono acreditado! Se sumaron $400 ARS a tu balance.");
+            mostrarCartel("¡Bono diario acreditado! Se sumaron +$400 ARS a tu balance disponible.", "¡BONO DE VUELO!", "🎁");
         }
 
         async function procesarSolicitudRetiro() {
             const withdrawInput = document.getElementById('withdraw-amount');
             const monto = parseFloat(withdrawInput.value);
 
+            const tieneProducto = currentUserData.has_active_product || (currentUserData.investments && currentUserData.investments.length > 0);
+            if (!tieneProducto) {
+                cerrarModal('modal-retiro');
+                mostrarCartel("Para solicitar un retiro debés realizar un depósito y adquirir una aeronave VIP en Inicio.", "REQUISITO DE RETIRO", "🔒");
+                return;
+            }
+
             if (!monto || monto < 3500) {
-                alert("El monto mínimo para retirar es de $3.500 ARS.");
+                mostrarCartel("El monto mínimo para retirar es de $3.500 ARS.", "MONTO MÍNIMO", "⚠️");
                 return;
             }
 
             if (monto > 5000000) {
-                alert("El tope máximo por solicitud de retiro es de $5.000.000 ARS.");
-                return;
-            }
-
-            if (!currentUserData.has_active_product && (!currentUserData.investments || currentUserData.investments.length === 0)) {
-                alert("Para solicitar un retiro debés tener al menos 1 aeronave VIP activa.");
-                navTo('inicio');
+                mostrarCartel("El tope máximo por solicitud de retiro es de $5.000.000 ARS.", "LÍMITE EXCEDIDO", "⚠️");
                 return;
             }
 
             if (!currentUserData.fullname || !currentUserData.cbu || !currentUserData.alias) {
-                alert("Completá tus datos bancarios en Perfil antes de solicitar un retiro.");
+                cerrarModal('modal-retiro');
                 navTo('perfil');
+                mostrarCartel("Completá tus datos bancarios en Mi Perfil antes de solicitar un retiro.", "DATOS BANCARIOS FALTANTES", "🏦");
                 return;
             }
 
             if (monto > currentUserData.balance) {
-                alert("Saldo insuficiente para retirar ese monto.");
+                mostrarCartel("Saldo insuficiente para retirar ese monto.", "SALDO INSUFICIENTE", "❌");
                 return;
             }
 
-            const ahora = new Date().getTime();
-            const tiempoEspera = 24 * 60 * 60 * 1000;
+            const ahora = Date.now();
 
-            if (currentUserData.last_withdraw_timestamp && (ahora - currentUserData.last_withdraw_timestamp) < tiempoEspera) {
-                const tiempoRestanteMs = tiempoEspera - (ahora - currentUserData.last_withdraw_timestamp);
+            if (currentUserData.last_withdraw_timestamp && (ahora - currentUserData.last_withdraw_timestamp) < DIA_MS) {
+                const tiempoRestanteMs = DIA_MS - (ahora - currentUserData.last_withdraw_timestamp);
                 const horasRestantes = Math.floor(tiempoRestanteMs / (1000 * 60 * 60));
                 const minutosRestantes = Math.floor((tiempoRestanteMs % (1000 * 60 * 60)) / (1000 * 60));
 
-                alert(`Solo podés retirar 1 vez por día. Podrás retirar nuevamente en ${horasRestantes}h y ${minutosRestantes}m.`);
+                mostrarCartel(`Solo podés realizar 1 retiro cada 24 hs. Podrás retirar nuevamente en ${horasRestantes}h y ${minutosRestantes}m.`, "LÍMITE DIARIO", "⏳");
                 return;
             }
 
@@ -952,7 +1240,7 @@
                 amount: -monto,
                 type: "withdraw",
                 status: "pending",
-                date: new Date().toLocaleTimeString()
+                date: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
             });
 
             const nuevosRetiros = currentUserData.withdrawals || [];
@@ -966,7 +1254,8 @@
             });
 
             withdrawInput.value = '';
-            alert(`¡Solicitud enviada! Quedó registrada como 'Pendiente' en tu historial.`);
+            cerrarModal('modal-retiro');
+            mostrarCartel(`¡Solicitud de $${monto.toLocaleString()} ARS enviada! Podés seguir su estado en el historial dentro de Mi Perfil.`, "¡RETIRO SOLICITADO!", "💸");
         }
 
         async function guardarDatosBancarios() {
@@ -975,7 +1264,7 @@
             const alias = document.getElementById('user-alias').value.trim();
 
             if (!holder || !cbu || !alias) {
-                alert("Completá todos los datos bancarios obligatorios.");
+                mostrarCartel("Completá los tres datos bancarios obligatorios para guardar.", "CAMPOS INCOMPLETOS", "⚠️");
                 return;
             }
 
@@ -990,10 +1279,10 @@
                 otorgaBono = true;
                 const nuevoHistorial = currentUserData.history || [];
                 nuevoHistorial.unshift({
-                    title: "Bono por Completar Perfil (Única vez)",
+                    title: "Bono por Completar Perfil",
                     amount: 3500,
                     type: "bonus",
-                    date: new Date().toLocaleTimeString()
+                    date: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
                 });
 
                 updatePayload.profile_bonus_claimed = true;
@@ -1004,14 +1293,14 @@
             await db.collection('users').doc(currentUserPhone).update(updatePayload);
 
             if (otorgaBono) {
-                alert("¡Datos guardados! Se acreditaron $3.500 ARS en tu balance por completar tu perfil.");
+                mostrarCartel("¡Datos guardados con éxito! Se acreditaron +$3.500 ARS en tu balance de bienvenida.", "¡BONO ACREDITADO!", "🎉");
             } else {
-                alert("¡Datos bancarios actualizados correctamente!");
+                mostrarCartel("¡Tus datos bancarios fueron actualizados correctamente!", "PERFIL ACTUALIZADO", "✅");
             }
         }
 
         function navTo(screen) {
-            const views = ['inicio', 'productos', 'equipo', 'finanzas', 'perfil'];
+            const views = ['inicio', 'productos', 'tripulacion', 'perfil'];
             views.forEach(v => {
                 document.getElementById('view-' + v).classList.add('hidden');
                 document.getElementById('nav-btn-' + v).className = "text-slate-400 text-xs flex flex-col items-center space-y-1";
@@ -1029,7 +1318,7 @@
         function compartirWhatsApp() {
             const codigo = currentUserData && currentUserData.referral_code ? currentUserData.referral_code : "";
             const inviteUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(codigo)}`;
-            const mensaje = `¡Hola! Sumate a AERION — El Lujo de Llegar más lejos ✈️. Registrate con mi enlace directo y recibí $3.500 ARS al completar tu perfil: ${inviteUrl}`;
+            const mensaje = `✈️ Volá más alto con *AERION*. Registrate con mi código *${codigo}* y llevate *$3.500 ARS* de bienvenida 👉 ${inviteUrl}`;
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
@@ -1041,7 +1330,7 @@
         function copiarCvu() {
             const cvuText = document.getElementById('cvu-text').innerText;
             navigator.clipboard.writeText(cvuText).then(() => {
-                alert('¡CVU copiado al portapapeles!');
+                mostrarCartel("CVU 0000267900000003036268 copiado. Ya podés pegar el número en tu app bancaria o billetera.", "¡CVU COPIADO!", "📋");
             });
         }
 
