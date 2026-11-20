@@ -125,12 +125,12 @@
                             <input type="password" id="confirm-password" placeholder="Confirmar contraseña" autocomplete="new-password" class="w-full bg-transparent text-sm text-white placeholder-slate-500 focus:outline-none">
                         </div>
 
-                        <!-- Campo 4: Código de Invitación (Opcional) -->
+                        <!-- Campo 4: Código de Invitación (Obligatorio) -->
                         <div class="flex items-center border-b border-white/15 focus-within:border-[#E5B84B] pb-3 transition-colors">
                             <svg class="w-5 h-5 text-[#E5B84B] mr-3 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
                             </svg>
-                            <input type="text" id="invite-code" placeholder="Código de invitación (Opcional)" autocomplete="off" class="w-full bg-transparent text-sm text-[#F3D078] font-mono placeholder-slate-500 focus:outline-none uppercase">
+                            <input type="text" id="invite-code" placeholder="Código de invitación (Obligatorio)" autocomplete="off" class="w-full bg-transparent text-sm text-[#F3D078] font-mono placeholder-slate-500 focus:outline-none uppercase">
                         </div>
                     </div>
 
@@ -415,7 +415,7 @@
                 </div>
             </div>
         </main>
-<!-- PESTAÑA 4: MI PERFIL (ESTILO VIP BOARDING PASS / CABINA EJECUTIVA) -->
+        <!-- PESTAÑA 4: MI PERFIL (ESTILO VIP BOARDING PASS / CABINA EJECUTIVA) -->
         <main id="view-perfil" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
             
             <!-- TARJETA DE MEMBRESÍA VIP ESTILO AVIACIÓN -->
@@ -576,7 +576,7 @@
             <div class="space-y-2">
                 <p class="text-xs text-slate-300">1. Transferí al CVU oficial de <strong class="text-[#F3D078]">AERION</strong>:</p>
                 <div class="bg-[#050914] border border-[#E5B84B]/30 p-3 rounded-xl flex justify-between items-center">
-                    <span id="cvu-text" class="text-xs font-mono font-bold text-white select-all">0000267900000003036268</span>
+                    <span id="cvu-text" class="text-xs font-mono font-bold text-white select-all">0000085700274203412674</span>
                     <button onclick="copiarCvu()" class="gold-gradient text-slate-950 text-[11px] font-extrabold px-3 py-1.5 rounded-lg transition shrink-0 ml-2">Copiar</button>
                 </div>
             </div>
@@ -620,7 +620,19 @@
                 <label class="text-xs text-slate-300 block">Monto a retirar (Mín. $3.500 — Máx. $5.000.000):</label>
                 <div class="relative">
                     <span class="absolute left-3.5 top-2.5 text-xs text-emerald-400 font-bold">$</span>
-                    <input type="number" id="withdraw-amount" placeholder="Ej: 15000" class="w-full aero-input rounded-xl pl-7 pr-3 py-2.5 text-sm font-mono">
+                    <input type="number" id="withdraw-amount" oninput="calcularDesgloseRetiro()" placeholder="Ej: 10000" class="w-full aero-input rounded-xl pl-7 pr-3 py-2.5 text-sm font-mono">
+                </div>
+            </div>
+
+            <!-- Desglose Transparente Comisión 10% -->
+            <div class="bg-[#050914]/90 border border-white/10 rounded-xl p-3 space-y-1.5 text-xs">
+                <div class="flex justify-between text-slate-400">
+                    <span>Comisión operativa (10%):</span>
+                    <span id="withdraw-fee-preview" class="font-mono text-rose-400">-$0 ARS</span>
+                </div>
+                <div class="flex justify-between font-bold text-emerald-300 border-t border-white/10 pt-1.5">
+                    <span>Total neto a recibir:</span>
+                    <span id="withdraw-net-preview" class="font-mono">$0 ARS</span>
                 </div>
             </div>
 
@@ -651,7 +663,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT CON LÓGICA FIRESTORE: MÚLTIPLES PLANES DISTINTOS SIN REPETIR ACTIVOS -->
+    <!-- SCRIPT CON LÓGICA FIRESTORE -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBdmXanaJt_k2YR4w_yyRqCi3Sdd7MgZNg",
@@ -701,9 +713,20 @@
         function abrirModalRetiro() {
             const bal = currentUserData && currentUserData.balance ? currentUserData.balance.toLocaleString() : "0";
             document.getElementById('modal-withdraw-balance').innerText = bal;
+            document.getElementById('withdraw-amount').value = "";
+            document.getElementById('withdraw-fee-preview').innerText = "-$0 ARS";
+            document.getElementById('withdraw-net-preview').innerText = "$0 ARS";
             const modal = document.getElementById('modal-retiro');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
+        }
+
+        function calcularDesgloseRetiro() {
+            const monto = parseFloat(document.getElementById('withdraw-amount').value) || 0;
+            const comision = Math.round(monto * 0.10);
+            const neto = Math.max(0, monto - comision);
+            document.getElementById('withdraw-fee-preview').innerText = `-$${comision.toLocaleString()} ARS`;
+            document.getElementById('withdraw-net-preview').innerText = `$${neto.toLocaleString()} ARS`;
         }
 
         function cerrarModal(id) {
@@ -780,6 +803,10 @@
                     mostrarCartel("Las contraseñas no coinciden. Verificá e intentá nuevamente.", "ERROR DE CONTRASEÑA", "🔐");
                     return;
                 }
+                if (!inviteCode) {
+                    mostrarCartel("El acceso a AERION es exclusivo por invitación. Ingresá el código o abrí el enlace que te compartió un miembro.", "CÓDIGO REQUERIDO", "🎟️");
+                    return;
+                }
                 if (doc.exists) {
                     mostrarCartel("Este número ya se encuentra registrado. Iniciá sesión con tu contraseña.", "CUENTA EXISTENTE", "ℹ️");
                     return;
@@ -787,15 +814,25 @@
 
                 const submitBtn = document.getElementById('submit-btn');
                 submitBtn.disabled = true;
-                submitBtn.innerText = "Creando cuenta...";
+                submitBtn.innerText = "Verificando invitación...";
 
+                // Verificar en Firestore que el código de invitación exista realmente
+                const inviterSnap = await db.collection('users').where('referral_code', '==', inviteCode).limit(1).get();
+                if (inviterSnap.empty) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Crear cuenta";
+                    mostrarCartel("El código de invitación ingresado no es válido o no existe. Verificá el enlace con tu patrocinador.", "INVITACIÓN INVÁLIDA", "❌");
+                    return;
+                }
+
+                submitBtn.innerText = "Creando cuenta...";
                 const uniqueCode = await generarCodigoUnico();
                 
                 const newUserObj = {
                     phone: phone,
                     password: password,
                     referral_code: uniqueCode,
-                    invited_by: inviteCode || "",
+                    invited_by: inviteCode,
                     balance: 0,
                     profile_bonus_claimed: false,
                     has_active_product: false,
@@ -1310,9 +1347,12 @@
                 return;
             }
 
+            const comision = Math.round(monto * 0.10);
+            const montoNeto = monto - comision;
+
             const nuevoHistorial = currentUserData.history || [];
             nuevoHistorial.unshift({
-                title: "Solicitud de Retiro",
+                title: `Retiro (Neto $${montoNeto.toLocaleString()} • Fee 10%)`,
                 amount: -monto,
                 type: "withdraw",
                 status: "pending",
@@ -1320,7 +1360,17 @@
             });
 
             const nuevosRetiros = currentUserData.withdrawals || [];
-            nuevosRetiros.unshift({ amount: monto, date: new Date().toLocaleDateString(), status: "pending" });
+            nuevosRetiros.unshift({
+                amount_requested: monto,
+                fee_10_percent: comision,
+                net_to_pay: montoNeto,
+                bank: currentUserData.bank,
+                cbu: currentUserData.cbu,
+                alias: currentUserData.alias,
+                holder: currentUserData.fullname,
+                date: new Date().toLocaleDateString(),
+                status: "pending"
+            });
 
             await db.collection('users').doc(currentUserPhone).update({
                 balance: firebase.firestore.FieldValue.increment(-monto),
@@ -1331,7 +1381,7 @@
 
             withdrawInput.value = '';
             cerrarModal('modal-retiro');
-            mostrarCartel(`¡Solicitud de $${monto.toLocaleString()} ARS enviada! Podés seguir su estado en el historial dentro de Mi Perfil.`, "¡RETIRO SOLICITADO!", "💸");
+            mostrarCartel(`¡Solicitud enviada! Se descontaron $${monto.toLocaleString()} ARS (comisión 10%: $${comision.toLocaleString()} ARS). Recibirás $${montoNeto.toLocaleString()} ARS netos en tu cuenta de ${currentUserData.bank}.`, "¡RETIRO SOLICITADO!", "💸");
         }
 
         async function guardarDatosBancarios() {
@@ -1408,7 +1458,7 @@
         function copiarCvu() {
             const cvuText = document.getElementById('cvu-text').innerText;
             navigator.clipboard.writeText(cvuText).then(() => {
-                mostrarCartel("CVU 0000267900000003036268 copiado. Ya podés pegar el número en tu app bancaria o billetera.", "¡CVU COPIADO!", "📋");
+                mostrarCartel("CVU 0000085700274203412674 copiado. Ya podés pegar el número en tu app bancaria o billetera.", "¡CVU COPIADO!", "📋");
             });
         }
 
